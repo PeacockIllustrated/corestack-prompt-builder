@@ -22,6 +22,7 @@ export const EntityTree: React.FC<EntityTreeProps> = ({
 }) => {
     const [newNodeName, setNewNodeName] = useState("");
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+    const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
 
     // Recursive function to add a child to a specific node
     const addChildToNode = (nodes: EntityNode[], parentId: string, childName: string): EntityNode[] => {
@@ -52,8 +53,29 @@ export const EntityTree: React.FC<EntityTreeProps> = ({
             }));
     };
 
-    const handleAdd = () => {
+    // Recursive function to update a node's name
+    const updateNodeName = (nodes: EntityNode[], nodeId: string, newName: string): EntityNode[] => {
+        return nodes.map((node) => {
+            if (node.id === nodeId) {
+                return { ...node, name: newName };
+            }
+            if (node.children.length > 0) {
+                return { ...node, children: updateNodeName(node.children, nodeId, newName) };
+            }
+            return node;
+        });
+    };
+
+    const handleAddOrUpdate = () => {
         if (!newNodeName.trim()) return;
+
+        if (editingNodeId) {
+            // Update existing node
+            onChange(updateNodeName(value, editingNodeId, newNodeName.trim()));
+            setEditingNodeId(null);
+            setNewNodeName("");
+            return;
+        }
 
         if (selectedNodeId) {
             // Add as child
@@ -71,8 +93,16 @@ export const EntityTree: React.FC<EntityTreeProps> = ({
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === "Enter") {
             e.preventDefault();
-            handleAdd();
+            handleAddOrUpdate();
         }
+    };
+
+    const startEditing = (e: React.MouseEvent, node: EntityNode) => {
+        e.stopPropagation();
+        setEditingNodeId(node.id);
+        setNewNodeName(node.name);
+        // If we are editing, we shouldn't be selecting for child addition simultaneously to avoid confusion
+        setSelectedNodeId(null);
     };
 
     // Recursive renderer for tree nodes
@@ -94,21 +124,38 @@ export const EntityTree: React.FC<EntityTreeProps> = ({
                         className={`
               flex items-center group cursor-pointer py-1 px-2
               ${selectedNodeId === node.id ? "bg-green-900/30 text-green-300" : "hover:bg-green-900/10"}
+              ${editingNodeId === node.id ? "bg-green-700/40 text-white animate-pulse" : ""}
             `}
-                        onClick={() => setSelectedNodeId(selectedNodeId === node.id ? null : node.id)}
+                        onClick={() => {
+                            if (editingNodeId) return; // Disable selection while editing
+                            setSelectedNodeId(selectedNodeId === node.id ? null : node.id);
+                        }}
                     >
                         <span className="font-mono text-green-600 mr-2 whitespace-pre">{prefix}</span>
                         <span className="font-mono text-sm flex-1">{node.name}</span>
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onChange(removeNode(value, node.id));
-                                if (selectedNodeId === node.id) setSelectedNodeId(null);
-                            }}
-                            className="text-xs text-green-800 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity px-2"
-                        >
-                            [DEL]
-                        </button>
+
+                        <div className="flex opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                                onClick={(e) => startEditing(e, node)}
+                                className="text-xs text-green-600 hover:text-green-300 px-2"
+                            >
+                                [EDT]
+                            </button>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onChange(removeNode(value, node.id));
+                                    if (selectedNodeId === node.id) setSelectedNodeId(null);
+                                    if (editingNodeId === node.id) {
+                                        setEditingNodeId(null);
+                                        setNewNodeName("");
+                                    }
+                                }}
+                                className="text-xs text-green-800 hover:text-red-500 px-2"
+                            >
+                                [DEL]
+                            </button>
+                        </div>
                     </div>
                     {node.children.length > 0 && renderTree(node.children, depth + 1, currentIsLastMap)}
                 </div>
@@ -128,29 +175,55 @@ export const EntityTree: React.FC<EntityTreeProps> = ({
                 )}
             </div>
 
-            <div className="flex gap-2">
-                <div className="relative flex-1">
-                    {selectedNodeId && (
-                        <div className="absolute -top-5 left-0 text-[10px] text-green-600">
-                            Adding child to selected node...
-                        </div>
-                    )}
+            <div className="flex flex-col gap-2">
+                {/* Helper text moved here for better layout */}
+                {selectedNodeId && !editingNodeId && (
+                    <div className="text-[10px] text-green-600 px-1">
+                        &gt; Adding child to selected node...
+                    </div>
+                )}
+                {editingNodeId && (
+                    <div className="text-[10px] text-yellow-600 px-1">
+                        &gt; Editing node name...
+                    </div>
+                )}
+
+                <div className="flex gap-2">
                     <Input
                         value={newNodeName}
                         onChange={(e) => setNewNodeName(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        placeholder={selectedNodeId ? "Enter child name..." : "Enter root entity name..."}
-                        className="w-full"
+                        placeholder={
+                            editingNodeId
+                                ? "Update node name..."
+                                : selectedNodeId
+                                    ? "Enter child name..."
+                                    : "Enter root entity name..."
+                        }
+                        className="flex-1"
                     />
-                </div>
-                <Button type="button" onClick={handleAdd} variant="secondary">
-                    {selectedNodeId ? "[ + CHILD ]" : "[ + ROOT ]"}
-                </Button>
-                {selectedNodeId && (
-                    <Button type="button" onClick={() => setSelectedNodeId(null)} className="px-3 border-dashed opacity-50 hover:opacity-100">
-                        [ DESELECT ]
+                    <Button type="button" onClick={handleAddOrUpdate} variant="secondary">
+                        {editingNodeId
+                            ? "[ UPDATE ]"
+                            : selectedNodeId
+                                ? "[ + CHILD ]"
+                                : "[ + ROOT ]"
+                        }
                     </Button>
-                )}
+                    {(selectedNodeId || editingNodeId) && (
+                        <Button
+                            type="button"
+                            onClick={() => {
+                                setSelectedNodeId(null);
+                                setEditingNodeId(null);
+                                setNewNodeName("");
+                            }}
+                            className="px-3 border-dashed opacity-50 hover:opacity-100"
+                        >
+                            [ CANCEL ]
+                        </Button>
+                    )}
+                </div>
             </div>
         </div>
     );
