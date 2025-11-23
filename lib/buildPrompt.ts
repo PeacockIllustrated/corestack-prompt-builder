@@ -1,5 +1,6 @@
 import { EntityNode } from "@/components/ui/EntityTree";
 import { EnvVar } from "@/components/ui/EnvVarInput";
+import { DesignSystem } from "@/components/ui/DesignSystemBuilder";
 
 export interface ProjectData {
   projectName: string;
@@ -13,6 +14,7 @@ export interface ProjectData {
   backendStack?: string;
   backendConfigCode?: string;
   envVars?: EnvVar[];
+  designSystem?: DesignSystem;
 }
 
 const formatEntityTree = (nodes: EntityNode[], depth = 0): string => {
@@ -96,11 +98,23 @@ ${data.deploymentPlatform ? `Setup Instructions:
 ${getDeploymentInstructions(data.deploymentPlatform)}` : ""}
 ` : "";
 
+  const designSystemSection = data.designSystem ? `
+## Design System
+- **Color Palette**: ${data.designSystem.colorPalette.toUpperCase()}
+- **Border Radius**: ${data.designSystem.borderRadius} (e.g., ${data.designSystem.borderRadius === 'square' ? 'rounded-none' : data.designSystem.borderRadius === 'pill' ? 'rounded-full' : 'rounded-lg'})
+- **Spacing**: ${data.designSystem.spacing}
+- **Shadows**: ${data.designSystem.shadows}
+- **Button Style**: ${data.designSystem.buttonStyle}
+- **Card Style**: ${data.designSystem.cardStyle}
+- **Navigation**: ${data.designSystem.navigationStyle}
+- **Strategy**: ${data.designSystem.mobileFirst ? "Mobile-First (default)" : "Desktop-First"}
+` : "";
+
   return `# CoreStack Bootstrap Prompt
 
 Project Name: ${data.projectName || "(untitled)"}
 Summary: ${data.projectSummary || "(no summary)"}
-${deploymentSection}
+${deploymentSection}${designSystemSection}
 ## Tech Stack (Non-Negotiable)
 - Next.js 15 (App Router, TypeScript, Tailwind)
 - ${data.backendStack || "Firebase + Supabase + Clerk"}

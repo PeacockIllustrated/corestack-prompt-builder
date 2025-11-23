@@ -13,6 +13,9 @@ import { ListInput } from "@/components/ui/ListInput";
 import { FlowBuilder } from "@/components/ui/FlowBuilder";
 import { EntityTree, EntityNode } from "@/components/ui/EntityTree";
 import { EnvVarInput, EnvVar } from "@/components/ui/EnvVarInput";
+import { DesignSystemBuilder, DesignSystem } from "@/components/ui/DesignSystemBuilder";
+
+const STORAGE_KEY = "corestack_prompt_data";
 
 export default function Home() {
   const [formData, setFormData] = useState<ProjectData>({
@@ -27,7 +30,38 @@ export default function Home() {
     backendStack: "",
     backendConfigCode: "",
     envVars: [],
+    designSystem: {
+      colorPalette: "monochrome",
+      borderRadius: "square",
+      spacing: "comfy",
+      shadows: "flat",
+      buttonStyle: "solid",
+      cardStyle: "border",
+      navigationStyle: "sticky",
+      mobileFirst: true,
+    },
   });
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setFormData(parsed);
+      } catch (e) {
+        console.error("Failed to load saved data", e);
+      }
+    }
+  }, []);
+
+  // Save to localStorage on change (debounced)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [formData]);
 
   const [prompt, setPrompt] = useState("");
   const [copied, setCopied] = useState(false);
@@ -56,6 +90,10 @@ export default function Home() {
 
   const handleEnvVarsChange = (envVars: EnvVar[]) => {
     setFormData((prev) => ({ ...prev, envVars }));
+  };
+
+  const handleDesignSystemChange = (designSystem: DesignSystem) => {
+    setFormData((prev) => ({ ...prev, designSystem }));
   };
 
   const handleCopy = async () => {
@@ -144,6 +182,15 @@ export default function Home() {
               {isGenerating ? "[ PROCESSING... ]" : "[ MAGIC_FILL ]"}
             </Button>
           </div>
+        </section>
+
+        {/* Design System Section */}
+        <section className="border border-green-800 bg-black/50 p-4">
+          <h2 className="text-lg font-bold uppercase text-green-600 mb-4">🎨 Design System</h2>
+          <DesignSystemBuilder
+            value={formData.designSystem!}
+            onChange={handleDesignSystemChange}
+          />
         </section>
 
         {/* Deployment Configuration Section */}
