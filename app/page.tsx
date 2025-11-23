@@ -126,7 +126,7 @@ export default function Home() {
 
         {/* Magic Fill Section */}
         <section className="border border-green-800 bg-green-900/10 p-4 rounded-sm">
-          <Label className="text-green-400 mb-2 block">✨ AI Magic Fill</Label>
+          <Label className="text-green-400 mb-2 block">AI Magic Fill</Label>
           <div className="flex gap-2">
             <Input
               placeholder="Describe your app idea (e.g. 'A CRM for freelance photographers')..."
@@ -147,7 +147,7 @@ export default function Home() {
 
         {/* Deployment Configuration Section */}
         <section className="border border-green-800 bg-black/50 p-4">
-          <h2 className="text-lg font-bold uppercase text-green-600 mb-4">🚀 Deployment & Configuration (Optional)</h2>
+          <h2 className="text-lg font-bold uppercase text-green-600 mb-4">Deployment & Configuration (Optional)</h2>
           <div className="space-y-6">
             <div>
               <Label htmlFor="githubRepo">GitHub Repository URL</Label>
@@ -165,17 +165,17 @@ export default function Home() {
                 <Label>Deployment Platform</Label>
                 <div className="flex gap-4 mt-2">
                   {["Vercel", "Netlify", "Other"].map((platform) => (
-                    <label key={platform} className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="deploymentPlatform"
-                        value={platform}
-                        checked={formData.deploymentPlatform === platform}
-                        onChange={handleChange}
-                        className="accent-green-600"
-                      />
+                    <button
+                      key={platform}
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, deploymentPlatform: platform }))}
+                      className="flex items-center gap-2 cursor-pointer hover:text-green-400 transition-colors"
+                    >
+                      <span className="text-green-600 font-mono text-sm">
+                        {formData.deploymentPlatform === platform ? "[ X ]" : "[   ]"}
+                      </span>
                       <span className="text-sm font-mono">{platform}</span>
-                    </label>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -184,17 +184,17 @@ export default function Home() {
                 <Label>Backend Stack</Label>
                 <div className="flex gap-4 mt-2">
                   {["Firebase", "Supabase", "Both"].map((backend) => (
-                    <label key={backend} className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="backendStack"
-                        value={backend}
-                        checked={formData.backendStack === backend}
-                        onChange={handleChange}
-                        className="accent-green-600"
-                      />
+                    <button
+                      key={backend}
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, backendStack: backend }))}
+                      className="flex items-center gap-2 cursor-pointer hover:text-green-400 transition-colors"
+                    >
+                      <span className="text-green-600 font-mono text-sm">
+                        {formData.backendStack === backend ? "[ X ]" : "[   ]"}
+                      </span>
                       <span className="text-sm font-mono">{backend}</span>
-                    </label>
+                    </button>
                   ))}
                 </div>
               </div>
