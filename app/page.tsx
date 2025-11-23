@@ -8,12 +8,12 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Label } from "@/components/ui/Label";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { TagInput } from "@/components/ui/TagInput";
 import { ListInput } from "@/components/ui/ListInput";
 import { FlowBuilder } from "@/components/ui/FlowBuilder";
 import { EntityTree, EntityNode } from "@/components/ui/EntityTree";
 import { EnvVarInput, EnvVar } from "@/components/ui/EnvVarInput";
 import { DesignSystemBuilder, DesignSystem } from "@/components/ui/DesignSystemBuilder";
+import { ASCIIRadio } from "@/components/ui/ASCIIRadio";
 
 const STORAGE_KEY = "corestack_prompt_data";
 
@@ -106,41 +106,28 @@ export default function Home() {
     }
   };
 
-  const handleReset = () => {
-    if (confirm("Are you sure you want to clear all fields?")) {
-      setFormData({
-        projectName: "",
-        projectSummary: "",
-        entities: [],
-        relationships: [],
-        flows: [],
-        notes: "",
-      });
-    }
-  };
-
   const handleMagicFill = async () => {
     if (!magicPrompt.trim()) return;
 
     setIsGenerating(true);
     try {
-      const res = await fetch("/api/generate", {
+      const response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: magicPrompt }),
       });
 
-      if (!res.ok) throw new Error("Failed to generate");
+      if (!response.ok) throw new Error("Generation failed");
 
-      const data = await res.json();
+      const data = await response.json();
 
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         projectName: data.projectName || prev.projectName,
         projectSummary: data.projectSummary || prev.projectSummary,
-        entities: data.entities || [],
-        relationships: data.relationships || [],
-        flows: data.flows || [],
+        entities: data.entities || prev.entities,
+        relationships: data.relationships || prev.relationships,
+        flows: data.flows || prev.flows,
       }));
     } catch (error) {
       console.error("Magic Fill Error:", error);
@@ -163,214 +150,228 @@ export default function Home() {
           </p>
         </header>
 
-        {/* Magic Fill Section */}
-        <section className="border border-green-800 bg-green-900/10 p-4 rounded-sm">
-          <Label className="text-green-400 mb-2 block">AI Magic Fill</Label>
-          <div className="flex gap-2">
-            <Input
-              placeholder="Describe your app idea (e.g. 'A CRM for freelance photographers')..."
-              value={magicPrompt}
-              onChange={(e) => setMagicPrompt(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleMagicFill()}
-              className="flex-1"
-            />
-            <Button
-              onClick={handleMagicFill}
-              disabled={isGenerating}
-              className={isGenerating ? "animate-pulse" : ""}
-            >
-              {isGenerating ? "[ PROCESSING... ]" : "[ MAGIC_FILL ]"}
-            </Button>
-          </div>
-        </section>
+        {/* Main Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-        {/* Design System Section */}
-        <section className="border border-green-800 bg-black/50 p-4">
-          <h2 className="text-lg font-bold uppercase text-green-600 mb-4">🎨 Design System</h2>
-          <DesignSystemBuilder
-            value={formData.designSystem!}
-            onChange={handleDesignSystemChange}
-          />
-        </section>
+          {/* LEFT COLUMN: Inputs */}
+          <div className="space-y-8">
 
-        {/* Deployment Configuration Section */}
-        <section className="border border-green-800 bg-black/50 p-4">
-          <h2 className="text-lg font-bold uppercase text-green-600 mb-4">Deployment & Configuration (Optional)</h2>
-          <div className="space-y-6">
-            <div>
-              <Label htmlFor="githubRepo">GitHub Repository URL</Label>
-              <Input
-                id="githubRepo"
-                name="githubRepo"
-                placeholder="https://github.com/username/project"
-                value={formData.githubRepo}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <Label>Deployment Platform</Label>
-                <div className="flex gap-4 mt-2">
-                  {["Vercel", "Netlify", "Other"].map((platform) => (
-                    <button
-                      key={platform}
-                      type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, deploymentPlatform: platform }))}
-                      className="flex items-center gap-2 cursor-pointer hover:text-green-400 transition-colors"
-                    >
-                      <span className="text-green-600 font-mono text-sm">
-                        {formData.deploymentPlatform === platform ? "[ X ]" : "[   ]"}
-                      </span>
-                      <span className="text-sm font-mono">{platform}</span>
-                    </button>
-                  ))}
-                </div>
+            {/* [0] AI MAGIC FILL */}
+            <section className="border border-green-800 bg-green-900/10 p-4 rounded-sm">
+              <Label className="text-green-400 mb-2 block font-bold">[0] AI MAGIC FILL</Label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Describe your app idea (e.g. 'A CRM for freelance photographers')..."
+                  value={magicPrompt}
+                  onChange={(e) => setMagicPrompt(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleMagicFill()}
+                  className="flex-1"
+                />
+                <Button
+                  onClick={handleMagicFill}
+                  disabled={isGenerating}
+                  className={isGenerating ? "animate-pulse" : ""}
+                >
+                  {isGenerating ? "[ PROCESSING... ]" : "[ MAGIC_FILL ]"}
+                </Button>
               </div>
+            </section>
+
+            {/* [1] PROJECT INFO */}
+            <section className="space-y-6">
+              <h2 className="text-lg font-bold uppercase text-green-600 border-b border-green-800 pb-2">
+                [1] PROJECT INFO
+              </h2>
 
               <div>
-                <Label>Backend Stack</Label>
-                <div className="flex gap-4 mt-2">
-                  {["Firebase", "Supabase", "Both"].map((backend) => (
-                    <button
-                      key={backend}
-                      type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, backendStack: backend }))}
-                      className="flex items-center gap-2 cursor-pointer hover:text-green-400 transition-colors"
-                    >
-                      <span className="text-green-600 font-mono text-sm">
-                        {formData.backendStack === backend ? "[ X ]" : "[   ]"}
-                      </span>
-                      <span className="text-sm font-mono">{backend}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {formData.backendStack && (
-              <div>
-                <Label htmlFor="backendConfigCode">
-                  Backend Configuration Code (Optional)
-                </Label>
-                <p className="text-xs text-green-700 mb-2">
-                  // Paste your Firebase/Supabase config object
-                </p>
-                <Textarea
-                  id="backendConfigCode"
-                  name="backendConfigCode"
-                  placeholder={`const firebaseConfig = {\n  apiKey: "...",\n  authDomain: "...",\n  projectId: "..."\n};`}
-                  value={formData.backendConfigCode}
+                <Label htmlFor="projectName">Project Name</Label>
+                <Input
+                  id="projectName"
+                  name="projectName"
+                  placeholder="e.g. photo-crm-v1"
+                  value={formData.projectName}
                   onChange={handleChange}
-                  rows={8}
-                  className="font-mono text-xs"
                 />
               </div>
-            )}
 
-            <EnvVarInput
-              label="Environment Variables"
-              value={formData.envVars || []}
-              onChange={handleEnvVarsChange}
-            />
-          </div>
-        </section>
+              <div>
+                <Label htmlFor="projectSummary">Summary</Label>
+                <Textarea
+                  id="projectSummary"
+                  name="projectSummary"
+                  placeholder="Briefly describe the core value proposition..."
+                  value={formData.projectSummary}
+                  onChange={handleChange}
+                  rows={3}
+                />
+              </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Column: Input Form */}
-          <section className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold uppercase text-green-600">
-                [1] INPUT_BUFFER
-              </h2>
-              <Button variant="secondary" onClick={handleReset} className="text-xs py-1">
-                [ RESET_FORM ]
-              </Button>
-            </div>
-
-            <Card className="space-y-8 bg-black/80 backdrop-blur-sm">
-              <div className="grid gap-6">
-                <div>
-                  <Label htmlFor="projectName">Project Name</Label>
-                  <Input
-                    id="projectName"
-                    name="projectName"
-                    placeholder="e.g. Client Billing Dashboard"
-                    value={formData.projectName}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="projectSummary">One-line Summary</Label>
-                  <Input
-                    id="projectSummary"
-                    name="projectSummary"
-                    placeholder="e.g. Internal tool for managing invoices..."
-                    value={formData.projectSummary}
-                    onChange={handleChange}
-                  />
-                </div>
-
+              <div>
+                <p className="text-xs text-green-700 mb-2">
+                  // Define your database schema hierarchy
+                </p>
                 <EntityTree
-                  label="Domain Entities"
+                  label="Entities (Data Model)"
                   value={formData.entities}
                   onChange={handleEntitiesChange}
                 />
+              </div>
 
-                <ListInput
-                  label="Key Relationships"
-                  value={formData.relationships}
-                  onChange={(val) => handleArrayChange("relationships", val)}
-                  placeholder="e.g. One User has many Invoices"
-                />
-
+              <div>
+                <p className="text-xs text-green-700 mb-2">
+                  // Define key user journeys (Step 1 -&gt; Step 2)
+                </p>
                 <FlowBuilder
-                  label="Core MVP Flows"
+                  label="Core Flows"
                   value={formData.flows}
-                  onChange={(val) => handleArrayChange("flows", val)}
+                  onChange={(flows) => handleArrayChange("flows", flows)}
                 />
+              </div>
 
-                <div>
-                  <Label htmlFor="notes">Special Requirements / Notes</Label>
-                  <Textarea
-                    id="notes"
-                    name="notes"
-                    placeholder="e.g. Mobile-friendly, Stripe integration later..."
-                    value={formData.notes}
-                    onChange={handleChange}
-                    className="h-24"
+              <div>
+                <p className="text-xs text-green-700 mb-2">
+                  // Define connections (e.g. "User has many Photos")
+                </p>
+                <ListInput
+                  label="Relationships"
+                  value={formData.relationships}
+                  onChange={(items) => handleArrayChange("relationships", items)}
+                  placeholder="e.g. User owns Projects"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="notes">Special Requirements / Notes</Label>
+                <Textarea
+                  id="notes"
+                  name="notes"
+                  placeholder="Any specific tech constraints or business rules..."
+                  value={formData.notes}
+                  onChange={handleChange}
+                  rows={4}
+                />
+              </div>
+            </section>
+
+            {/* [2] DEPLOYMENT & CONFIGURATION */}
+            <section className="space-y-8">
+              <h2 className="text-lg font-bold uppercase text-green-600 border-b border-green-800 pb-2">
+                [2] DEPLOYMENT & CONFIGURATION
+              </h2>
+
+              {/* Design System Sub-section */}
+              <div className="border border-green-800 bg-black/50 p-4">
+                <Label className="text-green-500 mb-4 block border-b border-green-900 pb-1 w-max">
+                  // DESIGN SYSTEM
+                </Label>
+                <DesignSystemBuilder
+                  value={formData.designSystem!}
+                  onChange={handleDesignSystemChange}
+                />
+              </div>
+
+              {/* Deployment Config Sub-section */}
+              <div className="border border-green-800 bg-black/50 p-4">
+                <Label className="text-green-500 mb-4 block border-b border-green-900 pb-1 w-max">
+                  // DEPLOYMENT SETTINGS
+                </Label>
+                <div className="space-y-6">
+                  <div>
+                    <Label htmlFor="githubRepo">GitHub Repository URL</Label>
+                    <Input
+                      id="githubRepo"
+                      name="githubRepo"
+                      placeholder="https://github.com/username/project"
+                      value={formData.githubRepo}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <Label>Deployment Platform</Label>
+                      <div className="flex gap-4 mt-2 flex-wrap">
+                        {["Vercel", "Netlify", "Other"].map((platform) => (
+                          <ASCIIRadio
+                            key={platform}
+                            label={platform}
+                            checked={formData.deploymentPlatform === platform}
+                            onClick={() => setFormData(prev => ({ ...prev, deploymentPlatform: platform }))}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label>Backend Stack</Label>
+                      <div className="flex gap-4 mt-2 flex-wrap">
+                        {["Firebase", "Supabase", "Both"].map((backend) => (
+                          <ASCIIRadio
+                            key={backend}
+                            label={backend}
+                            checked={formData.backendStack === backend}
+                            onClick={() => setFormData(prev => ({ ...prev, backendStack: backend }))}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {formData.backendStack && (
+                    <div>
+                      <Label htmlFor="backendConfigCode">
+                        Backend Configuration Code (Optional)
+                      </Label>
+                      <p className="text-xs text-green-700 mb-2">
+                        // Paste your Firebase/Supabase config object
+                      </p>
+                      <Textarea
+                        id="backendConfigCode"
+                        name="backendConfigCode"
+                        placeholder={`const firebaseConfig = {\n  apiKey: "...",\n  authDomain: "...",\n  projectId: "..."\n};`}
+                        value={formData.backendConfigCode}
+                        onChange={handleChange}
+                        rows={8}
+                        className="font-mono text-xs"
+                      />
+                    </div>
+                  )}
+
+                  <EnvVarInput
+                    label="Environment Variables"
+                    value={formData.envVars || []}
+                    onChange={handleEnvVarsChange}
                   />
                 </div>
               </div>
-            </Card>
-          </section>
+            </section>
+          </div>
 
-          {/* Right Column: Preview */}
-          <section className="space-y-6 lg:sticky lg:top-8 h-fit">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold uppercase text-green-600">
-                [2] OUTPUT_STREAM
-              </h2>
-              <Button onClick={handleCopy}>
-                {copied ? "[ COPIED! ]" : "[ COPY_PROMPT ]"}
-              </Button>
-            </div>
-
-            <Card className="relative min-h-[600px] max-h-[calc(100vh-12rem)] overflow-hidden flex flex-col bg-black/90">
-              <div className="absolute top-0 left-0 right-0 h-8 bg-green-900/20 border-b border-green-800 flex items-center px-3 space-x-2">
-                <div className="w-2 h-2 rounded-full bg-green-700 animate-pulse"></div>
-                <div className="w-2 h-2 rounded-full bg-green-700 animate-pulse delay-75"></div>
-                <div className="w-2 h-2 rounded-full bg-green-700 animate-pulse delay-150"></div>
-                <span className="ml-auto text-xs text-green-800 font-mono">BUFFER_SIZE: {prompt.length}B</span>
+          {/* RIGHT COLUMN: Output */}
+          <div className="lg:sticky lg:top-8 h-fit space-y-4">
+            <h2 className="text-lg font-bold uppercase text-green-600 border-b border-green-800 pb-2">
+              [3] OUTPUT STREAM
+            </h2>
+            <Card className="p-0 overflow-hidden flex flex-col max-h-[calc(100vh-8rem)]">
+              <div className="bg-green-900/20 p-2 border-b border-green-800 flex justify-between items-center">
+                <span className="text-xs font-mono text-green-400 pl-2">
+                  preview.md
+                </span>
+                <Button
+                  onClick={handleCopy}
+                  variant="secondary"
+                  className="text-xs h-7"
+                >
+                  {copied ? "[ COPIED! ]" : "[ COPY_TO_CLIPBOARD ]"}
+                </Button>
               </div>
-              <div className="mt-8 flex-1 overflow-auto custom-scrollbar p-4">
-                <pre className="whitespace-pre-wrap text-sm text-green-400 font-mono leading-relaxed">
+              <div className="p-4 overflow-y-auto custom-scrollbar flex-1 bg-black">
+                <pre className="whitespace-pre-wrap font-mono text-sm text-green-500/90 leading-relaxed">
                   {prompt}
                 </pre>
               </div>
             </Card>
-          </section>
+          </div>
         </div>
       </div>
     </main>
