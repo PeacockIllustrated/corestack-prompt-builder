@@ -1,4 +1,5 @@
 "use client";
+// Force redeploy
 
 import React, { useState, useEffect } from "react";
 import { generatePrompt, ProjectData } from "@/lib/buildPrompt";
