@@ -1,6 +1,12 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --font-mono: var(--font-mono);
+  --font-pixel: var(--font-pixel);
+
+  --font-family-mono: var(--font-mono), monospace;
+  --font-family-pixel: var(--font-pixel), monospace;
+}
 
 :root {
   --foreground-rgb: 0, 255, 65;
@@ -10,12 +16,9 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
+  background: linear-gradient(to bottom,
       transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+      rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
   text-shadow: 0 0 2px rgba(0, 255, 65, 0.5);
 }
 
@@ -24,14 +27,17 @@ body {
   width: 10px;
   height: 10px;
 }
+
 ::-webkit-scrollbar-track {
   background: #000;
   border-left: 1px solid #003300;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #003300;
   border: 1px solid #00ff41;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: #004400;
 }
@@ -41,46 +47,108 @@ body {
   0% {
     transform: translateY(-100%);
   }
+
   100% {
     transform: translateY(100%);
   }
 }
 
 @keyframes flicker {
-  0% { opacity: 0.97; }
-  5% { opacity: 0.95; }
-  10% { opacity: 0.9; }
-  15% { opacity: 0.95; }
-  20% { opacity: 0.99; }
-  25% { opacity: 0.95; }
-  30% { opacity: 0.9; }
-  35% { opacity: 0.96; }
-  40% { opacity: 0.98; }
-  45% { opacity: 0.95; }
-  50% { opacity: 0.99; }
-  55% { opacity: 0.93; }
-  60% { opacity: 0.9; }
-  65% { opacity: 0.96; }
-  70% { opacity: 1; }
-  75% { opacity: 0.97; }
-  80% { opacity: 0.95; }
-  85% { opacity: 0.92; }
-  90% { opacity: 0.96; }
-  95% { opacity: 0.99; }
-  100% { opacity: 0.94; }
+  0% {
+    opacity: 0.97;
+  }
+
+  5% {
+    opacity: 0.95;
+  }
+
+  10% {
+    opacity: 0.9;
+  }
+
+  15% {
+    opacity: 0.95;
+  }
+
+  20% {
+    opacity: 0.99;
+  }
+
+  25% {
+    opacity: 0.95;
+  }
+
+  30% {
+    opacity: 0.9;
+  }
+
+  35% {
+    opacity: 0.96;
+  }
+
+  40% {
+    opacity: 0.98;
+  }
+
+  45% {
+    opacity: 0.95;
+  }
+
+  50% {
+    opacity: 0.99;
+  }
+
+  55% {
+    opacity: 0.93;
+  }
+
+  60% {
+    opacity: 0.9;
+  }
+
+  65% {
+    opacity: 0.96;
+  }
+
+  70% {
+    opacity: 1;
+  }
+
+  75% {
+    opacity: 0.97;
+  }
+
+  80% {
+    opacity: 0.95;
+  }
+
+  85% {
+    opacity: 0.92;
+  }
+
+  90% {
+    opacity: 0.96;
+  }
+
+  95% {
+    opacity: 0.99;
+  }
+
+  100% {
+    opacity: 0.94;
+  }
 }
 
 .scanline {
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0),
-    rgba(255, 255, 255, 0) 50%,
-    rgba(0, 0, 0, 0.2) 50%,
-    rgba(0, 0, 0, 0.2)
-  );
+  background: linear-gradient(to bottom,
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 0) 50%,
+      rgba(0, 0, 0, 0.2) 50%,
+      rgba(0, 0, 0, 0.2));
   background-size: 100% 4px;
   animation: flicker 0.15s infinite;
   opacity: 0.15;
+  pointer-events: none;
 }
 
 .crt-overlay {
@@ -90,16 +158,20 @@ body {
 }
 
 .vignette {
-  background: radial-gradient(
-    circle,
-    rgba(0, 0, 0, 0) 60%,
-    rgba(0, 0, 0, 0.6) 100%
-  );
+  background: radial-gradient(circle,
+      rgba(0, 0, 0, 0) 60%,
+      rgba(0, 0, 0, 0.6) 100%);
+  pointer-events: none;
 }
 
 /* Utility for pixel font headers */
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-pixel), monospace;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-family-pixel);
   letter-spacing: 0.05em;
 }
 
