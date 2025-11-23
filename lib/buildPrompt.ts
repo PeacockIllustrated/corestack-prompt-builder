@@ -1,9 +1,9 @@
 export interface ProjectData {
   projectName: string;
   projectSummary: string;
-  entities: string;
-  relationships: string;
-  flows: string;
+  entities: string[];
+  relationships: string[];
+  flows: string[];
   notes: string;
 }
 
@@ -18,7 +18,11 @@ export function generatePrompt(data: ProjectData): string {
   } = data;
 
   // Helper to handle empty fields
-  const formatSection = (content: string) => {
+  const formatSection = (content: string | string[]) => {
+    if (Array.isArray(content)) {
+      if (content.length === 0) return "(none)";
+      return content.map((item) => `- ${item}`).join("\n");
+    }
     return content.trim() ? content.trim() : "(none)";
   };
 

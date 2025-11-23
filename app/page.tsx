@@ -7,14 +7,17 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Label } from "@/components/ui/Label";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { TagInput } from "@/components/ui/TagInput";
+import { ListInput } from "@/components/ui/ListInput";
+import { FlowBuilder } from "@/components/ui/FlowBuilder";
 
 export default function Home() {
   const [formData, setFormData] = useState<ProjectData>({
     projectName: "",
     projectSummary: "",
-    entities: "",
-    relationships: "",
-    flows: "",
+    entities: [],
+    relationships: [],
+    flows: [],
     notes: "",
   });
 
@@ -29,6 +32,10 @@ export default function Home() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleArrayChange = (name: keyof ProjectData, value: string[]) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -47,23 +54,23 @@ export default function Home() {
       setFormData({
         projectName: "",
         projectSummary: "",
-        entities: "",
-        relationships: "",
-        flows: "",
+        entities: [],
+        relationships: [],
+        flows: [],
         notes: "",
       });
     }
   };
 
   return (
-    <main className="min-h-screen bg-black text-green-500 p-4 md:p-8 font-mono selection:bg-green-900 selection:text-green-100">
+    <main className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <header className="border-b border-green-800 pb-6">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight uppercase">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight uppercase text-glow">
             &gt; CoreStack Prompt Builder_
           </h1>
-          <p className="text-green-700 mt-2 text-sm md:text-base">
+          <p className="text-green-700 mt-2 text-sm md:text-base font-mono">
             // Generate AI-ready bootstrap prompts for new admin dashboards
           </p>
         </header>
@@ -72,7 +79,7 @@ export default function Home() {
           {/* Left Column: Input Form */}
           <section className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold uppercase text-green-600">
+              <h2 className="text-xl font-bold uppercase text-green-600">
                 [1] INPUT_BUFFER
               </h2>
               <Button variant="secondary" onClick={handleReset} className="text-xs py-1">
@@ -80,8 +87,8 @@ export default function Home() {
               </Button>
             </div>
 
-            <Card className="space-y-6">
-              <div className="grid gap-4">
+            <Card className="space-y-8 bg-black/80 backdrop-blur-sm">
+              <div className="grid gap-6">
                 <div>
                   <Label htmlFor="projectName">Project Name</Label>
                   <Input
@@ -104,41 +111,25 @@ export default function Home() {
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="entities">Domain Entities</Label>
-                  <Textarea
-                    id="entities"
-                    name="entities"
-                    placeholder="- Clients&#10;- Invoices&#10;- Payments"
-                    value={formData.entities}
-                    onChange={handleChange}
-                    className="h-32"
-                  />
-                </div>
+                <TagInput
+                  label="Domain Entities"
+                  value={formData.entities}
+                  onChange={(val) => handleArrayChange("entities", val)}
+                  placeholder="Type entity (e.g. 'User') and press Enter"
+                />
 
-                <div>
-                  <Label htmlFor="relationships">Key Relationships</Label>
-                  <Textarea
-                    id="relationships"
-                    name="relationships"
-                    placeholder="- One Client has many Invoices..."
-                    value={formData.relationships}
-                    onChange={handleChange}
-                    className="h-24"
-                  />
-                </div>
+                <ListInput
+                  label="Key Relationships"
+                  value={formData.relationships}
+                  onChange={(val) => handleArrayChange("relationships", val)}
+                  placeholder="e.g. One User has many Invoices"
+                />
 
-                <div>
-                  <Label htmlFor="flows">Core MVP Flows</Label>
-                  <Textarea
-                    id="flows"
-                    name="flows"
-                    placeholder="- Admin logs in&#10;- Admin creates client..."
-                    value={formData.flows}
-                    onChange={handleChange}
-                    className="h-32"
-                  />
-                </div>
+                <FlowBuilder
+                  label="Core MVP Flows"
+                  value={formData.flows}
+                  onChange={(val) => handleArrayChange("flows", val)}
+                />
 
                 <div>
                   <Label htmlFor="notes">Special Requirements / Notes</Label>
@@ -158,7 +149,7 @@ export default function Home() {
           {/* Right Column: Preview */}
           <section className="space-y-6 lg:sticky lg:top-8 h-fit">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold uppercase text-green-600">
+              <h2 className="text-xl font-bold uppercase text-green-600">
                 [2] OUTPUT_STREAM
               </h2>
               <Button onClick={handleCopy}>
@@ -166,19 +157,18 @@ export default function Home() {
               </Button>
             </div>
 
-            <Card className="relative min-h-[600px] max-h-[calc(100vh-12rem)] overflow-hidden flex flex-col">
-              <div className="absolute top-0 left-0 right-0 h-6 bg-green-900/20 border-b border-green-800 flex items-center px-2 space-x-2">
-                <div className="w-2 h-2 rounded-full bg-green-700"></div>
-                <div className="w-2 h-2 rounded-full bg-green-700"></div>
-                <div className="w-2 h-2 rounded-full bg-green-700"></div>
+            <Card className="relative min-h-[600px] max-h-[calc(100vh-12rem)] overflow-hidden flex flex-col bg-black/90">
+              <div className="absolute top-0 left-0 right-0 h-8 bg-green-900/20 border-b border-green-800 flex items-center px-3 space-x-2">
+                <div className="w-2 h-2 rounded-full bg-green-700 animate-pulse"></div>
+                <div className="w-2 h-2 rounded-full bg-green-700 animate-pulse delay-75"></div>
+                <div className="w-2 h-2 rounded-full bg-green-700 animate-pulse delay-150"></div>
+                <span className="ml-auto text-xs text-green-800 font-mono">BUFFER_SIZE: {prompt.length}B</span>
               </div>
-              <div className="mt-6 flex-1 overflow-auto custom-scrollbar">
-                <pre className="whitespace-pre-wrap text-sm text-green-400 font-mono leading-relaxed p-2">
+              <div className="mt-8 flex-1 overflow-auto custom-scrollbar p-4">
+                <pre className="whitespace-pre-wrap text-sm text-green-400 font-mono leading-relaxed">
                   {prompt}
                 </pre>
               </div>
-              {/* Scanline effect overlay (optional, keeping it simple for now) */}
-              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-10 bg-[length:100%_2px,3px_100%] opacity-20"></div>
             </Card>
           </section>
         </div>
