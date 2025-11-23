@@ -12,6 +12,7 @@ import { TagInput } from "@/components/ui/TagInput";
 import { ListInput } from "@/components/ui/ListInput";
 import { FlowBuilder } from "@/components/ui/FlowBuilder";
 import { EntityTree, EntityNode } from "@/components/ui/EntityTree";
+import { EnvVarInput, EnvVar } from "@/components/ui/EnvVarInput";
 
 export default function Home() {
   const [formData, setFormData] = useState<ProjectData>({
@@ -21,6 +22,10 @@ export default function Home() {
     relationships: [],
     flows: [],
     notes: "",
+    githubRepo: "",
+    deploymentPlatform: "",
+    backendStack: "",
+    envVars: [],
   });
 
   const [prompt, setPrompt] = useState("");
@@ -46,6 +51,10 @@ export default function Home() {
 
   const handleEntitiesChange = (nodes: EntityNode[]) => {
     setFormData((prev) => ({ ...prev, entities: nodes }));
+  };
+
+  const handleEnvVarsChange = (envVars: EnvVar[]) => {
+    setFormData((prev) => ({ ...prev, envVars }));
   };
 
   const handleCopy = async () => {
@@ -133,6 +142,69 @@ export default function Home() {
             >
               {isGenerating ? "[ PROCESSING... ]" : "[ MAGIC_FILL ]"}
             </Button>
+          </div>
+        </section>
+
+        {/* Deployment Configuration Section */}
+        <section className="border border-green-800 bg-black/50 p-4">
+          <h2 className="text-lg font-bold uppercase text-green-600 mb-4">🚀 Deployment & Configuration (Optional)</h2>
+          <div className="space-y-6">
+            <div>
+              <Label htmlFor="githubRepo">GitHub Repository URL</Label>
+              <Input
+                id="githubRepo"
+                name="githubRepo"
+                placeholder="https://github.com/username/project"
+                value={formData.githubRepo}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label>Deployment Platform</Label>
+                <div className="flex gap-4 mt-2">
+                  {["Vercel", "Netlify", "Other"].map((platform) => (
+                    <label key={platform} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="deploymentPlatform"
+                        value={platform}
+                        checked={formData.deploymentPlatform === platform}
+                        onChange={handleChange}
+                        className="accent-green-600"
+                      />
+                      <span className="text-sm font-mono">{platform}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <Label>Backend Stack</Label>
+                <div className="flex gap-4 mt-2">
+                  {["Firebase", "Supabase", "Both"].map((backend) => (
+                    <label key={backend} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="backendStack"
+                        value={backend}
+                        checked={formData.backendStack === backend}
+                        onChange={handleChange}
+                        className="accent-green-600"
+                      />
+                      <span className="text-sm font-mono">{backend}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <EnvVarInput
+              label="Environment Variables"
+              value={formData.envVars || []}
+              onChange={handleEnvVarsChange}
+            />
           </div>
         </section>
 
