@@ -26,6 +26,9 @@ export default function Home() {
   const [prompt, setPrompt] = useState("");
   const [copied, setCopied] = useState(false);
 
+  const [magicPrompt, setMagicPrompt] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+
   useEffect(() => {
     setPrompt(generatePrompt(formData));
   }, [formData]);
@@ -68,6 +71,37 @@ export default function Home() {
     }
   };
 
+  const handleMagicFill = async () => {
+    if (!magicPrompt.trim()) return;
+
+    setIsGenerating(true);
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: magicPrompt }),
+      });
+
+      if (!res.ok) throw new Error("Failed to generate");
+
+      const data = await res.json();
+
+      setFormData(prev => ({
+        ...prev,
+        projectName: data.projectName || prev.projectName,
+        projectSummary: data.projectSummary || prev.projectSummary,
+        entities: data.entities || [],
+        relationships: data.relationships || [],
+        flows: data.flows || [],
+      }));
+    } catch (error) {
+      console.error("Magic Fill Error:", error);
+      alert("Failed to generate content. Please try again.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <main className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -80,6 +114,27 @@ export default function Home() {
             // Generate AI-ready bootstrap prompts for new admin dashboards
           </p>
         </header>
+
+        {/* Magic Fill Section */}
+        <section className="border border-green-800 bg-green-900/10 p-4 rounded-sm">
+          <Label className="text-green-400 mb-2 block">✨ AI Magic Fill</Label>
+          <div className="flex gap-2">
+            <Input
+              placeholder="Describe your app idea (e.g. 'A CRM for freelance photographers')..."
+              value={magicPrompt}
+              onChange={(e) => setMagicPrompt(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleMagicFill()}
+              className="flex-1"
+            />
+            <Button
+              onClick={handleMagicFill}
+              disabled={isGenerating}
+              className={isGenerating ? "animate-pulse" : ""}
+            >
+              {isGenerating ? "[ PROCESSING... ]" : "[ MAGIC_FILL ]"}
+            </Button>
+          </div>
+        </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left Column: Input Form */}
