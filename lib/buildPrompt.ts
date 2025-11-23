@@ -11,6 +11,7 @@ export interface ProjectData {
   githubRepo?: string;
   deploymentPlatform?: string;
   backendStack?: string;
+  backendConfigCode?: string;
   envVars?: EnvVar[];
 }
 
@@ -81,6 +82,11 @@ ${data.deploymentPlatform ? `Deployment Platform: ${data.deploymentPlatform}` : 
 
 ${data.backendStack ? `Backend Stack: ${data.backendStack}` : ""}
 
+${data.backendConfigCode ? `Backend Configuration:
+\`\`\`typescript
+${data.backendConfigCode.trim()}
+\`\`\`
+` : ""}
 ${data.envVars && data.envVars.length > 0 ? `Environment Variables:
 ${formatEnvVarsTable(data.envVars)}
 

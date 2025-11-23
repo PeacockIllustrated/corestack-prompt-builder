@@ -25,6 +25,7 @@ export default function Home() {
     githubRepo: "",
     deploymentPlatform: "",
     backendStack: "",
+    backendConfigCode: "",
     envVars: [],
   });
 
@@ -199,6 +200,26 @@ export default function Home() {
                 </div>
               </div>
             </div>
+
+            {formData.backendStack && (
+              <div>
+                <Label htmlFor="backendConfigCode">
+                  Backend Configuration Code (Optional)
+                </Label>
+                <p className="text-xs text-green-700 mb-2">
+                  // Paste your Firebase/Supabase config object
+                </p>
+                <Textarea
+                  id="backendConfigCode"
+                  name="backendConfigCode"
+                  placeholder={`const firebaseConfig = {\n  apiKey: "...",\n  authDomain: "...",\n  projectId: "..."\n};`}
+                  value={formData.backendConfigCode}
+                  onChange={handleChange}
+                  rows={8}
+                  className="font-mono text-xs"
+                />
+              </div>
+            )}
 
             <EnvVarInput
               label="Environment Variables"
