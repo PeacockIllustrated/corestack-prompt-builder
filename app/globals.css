@@ -1,4 +1,7 @@
 @import "tailwindcss";
+@source "../components";
+@source "../lib";
+@source "../app";
 
 @theme {
   --font-mono: var(--font-mono);
