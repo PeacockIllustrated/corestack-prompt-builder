@@ -1,7 +1,9 @@
+import { EntityNode } from "@/components/ui/EntityTree";
+
 export interface ProjectData {
   projectName: string;
   projectSummary: string;
-  entities: string[];
+  entities: EntityNode[];
   relationships: string[];
   flows: string[];
   notes: string;
@@ -17,13 +19,31 @@ export function generatePrompt(data: ProjectData): string {
     notes,
   } = data;
 
+  // Helper to format the entity tree recursively
+  const formatEntityTree = (nodes: EntityNode[], depth = 0): string => {
+    if (nodes.length === 0) return "";
+
+    return nodes.map(node => {
+      const indent = "  ".repeat(depth);
+      const children = formatEntityTree(node.children, depth + 1);
+      return `${indent}- ${node.name}\n${children}`;
+    }).join("");
+  };
+
   // Helper to handle empty fields
-  const formatSection = (content: string | string[]) => {
+  const formatSection = (content: string | string[] | EntityNode[]) => {
     if (Array.isArray(content)) {
       if (content.length === 0) return "(none)";
-      return content.map((item) => `- ${item}`).join("\n");
+
+      // Check if it's an array of EntityNodes (by checking first item properties)
+      const firstItem = content[0];
+      if (typeof firstItem === 'object' && firstItem !== null && 'children' in firstItem) {
+        return formatEntityTree(content as EntityNode[]).trim();
+      }
+
+      return (content as string[]).map((item) => `- ${item}`).join("\n");
     }
-    return content.trim() ? content.trim() : "(none)";
+    return (content as string).trim() ? (content as string).trim() : "(none)";
   };
 
   return `You are an expert full-stack TypeScript engineer helping me bootstrap a new admin dashboard using my standard CoreStack architecture.

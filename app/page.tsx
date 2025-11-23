@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/Card";
 import { TagInput } from "@/components/ui/TagInput";
 import { ListInput } from "@/components/ui/ListInput";
 import { FlowBuilder } from "@/components/ui/FlowBuilder";
+import { EntityTree, EntityNode } from "@/components/ui/EntityTree";
 
 export default function Home() {
   const [formData, setFormData] = useState<ProjectData>({
@@ -37,6 +38,10 @@ export default function Home() {
 
   const handleArrayChange = (name: keyof ProjectData, value: string[]) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleEntitiesChange = (nodes: EntityNode[]) => {
+    setFormData((prev) => ({ ...prev, entities: nodes }));
   };
 
   const handleCopy = async () => {
@@ -111,11 +116,10 @@ export default function Home() {
                   />
                 </div>
 
-                <TagInput
+                <EntityTree
                   label="Domain Entities"
                   value={formData.entities}
-                  onChange={(val) => handleArrayChange("entities", val)}
-                  placeholder="Type entity (e.g. 'User') and press Enter"
+                  onChange={handleEntitiesChange}
                 />
 
                 <ListInput
