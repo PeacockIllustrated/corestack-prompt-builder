@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { storage, ProjectMetadata, ProjectType } from "@/lib/storage";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { Label } from "@/components/ui/Label";
 
 export default function DashboardPage() {
     const router = useRouter();
@@ -13,7 +12,8 @@ export default function DashboardPage() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        setProjects(storage.getAllProjects());
+        const loadedProjects = storage.getAllProjects();
+        setProjects(Array.isArray(loadedProjects) ? loadedProjects : []);
         setIsLoading(false);
     }, []);
 
@@ -73,10 +73,10 @@ export default function DashboardPage() {
                 {/* Project List */}
                 <Card className="min-h-[400px] p-0 overflow-hidden flex flex-col">
                     <div className="grid grid-cols-12 gap-4 p-4 border-b border-green-800 bg-green-900/20 text-xs font-bold text-green-400 uppercase tracking-wider">
-                        <div className="col-span-5 md:col-span-4">Project Name</div>
-                        <div className="col-span-3 md:col-span-2">Type</div>
-                        <div className="col-span-4 md:col-span-3">Last Modified</div>
-                        <div className="col-span-12 md:col-span-3 text-right">ID</div>
+                        <div className="col-span-8 md:col-span-4">Project Name</div>
+                        <div className="col-span-4 md:col-span-2 text-right md:text-left">Type</div>
+                        <div className="hidden md:block md:col-span-3">Last Modified</div>
+                        <div className="hidden md:block md:col-span-3 text-right">ID</div>
                     </div>
 
                     <div className="flex-1 overflow-y-auto">
@@ -93,20 +93,20 @@ export default function DashboardPage() {
                                         onClick={() => router.push(`/editor/${project.id}`)}
                                         className="grid grid-cols-12 gap-4 p-4 hover:bg-green-900/10 cursor-pointer group transition-colors items-center"
                                     >
-                                        <div className="col-span-5 md:col-span-4 font-bold text-green-300 truncate">
-                                            {project.name}
+                                        <div className="col-span-8 md:col-span-4 font-bold text-green-300 truncate">
+                                            {project.name || "Untitled Project"}
                                         </div>
-                                        <div className="col-span-3 md:col-span-2 text-xs">
+                                        <div className="col-span-4 md:col-span-2 text-xs text-right md:text-left">
                                             <span className={`inline-block px-2 py-0.5 border ${project.type === "WEB_APP" ? "border-green-600 text-green-400" : "border-blue-600 text-blue-400"
                                                 }`}>
                                                 {project.type}
                                             </span>
                                         </div>
-                                        <div className="col-span-4 md:col-span-3 text-xs text-green-600 font-mono">
+                                        <div className="hidden md:block md:col-span-3 text-xs text-green-600 font-mono">
                                             {formatDate(project.lastModified)}
                                         </div>
-                                        <div className="col-span-12 md:col-span-3 flex justify-between md:justify-end items-center gap-4">
-                                            <span className="text-xs text-green-900 font-mono hidden md:inline">
+                                        <div className="hidden md:flex md:col-span-3 justify-end items-center gap-4">
+                                            <span className="text-xs text-green-900 font-mono">
                                                 {project.id.slice(0, 8)}...
                                             </span>
                                             <button
