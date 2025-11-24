@@ -1,6 +1,7 @@
 import { EntityNode } from "@/components/ui/EntityTree";
 import { EnvVar } from "@/components/ui/EnvVarInput";
 import { DesignSystem } from "@/components/ui/DesignSystemBuilder";
+import { AgentData } from "@/components/modules/AgentBuilder";
 
 export interface ProjectData {
   projectName: string;
@@ -57,6 +58,32 @@ const getDeploymentInstructions = (platform?: string): string => {
 2. Configure environment variables
 3. Deploy from main branch`;
   }
+};
+
+export const generateAgentPrompt = (data: AgentData): string => {
+  const triggersList = data.triggers.length > 0 ? data.triggers.map((t) => `- ${t}`).join("\n") : "(No triggers defined)";
+  const toolsList = data.tools.length > 0 ? data.tools.map((t) => `- ${t}`).join("\n") : "(No tools defined)";
+  const constraintsList = data.constraints.length > 0 ? data.constraints.map((c) => `- ${c}`).join("\n") : "(No constraints defined)";
+
+  return `# Agent System Prompt: ${data.agentName || "Untitled Agent"}
+
+## Persona
+${data.agentPersona || "(No persona defined)"}
+
+## Triggers
+${triggersList}
+
+## Tools & Capabilities
+${toolsList}
+
+## Constraints & Safety
+${constraintsList}
+
+## Output Format
+\`\`\`json
+${data.outputFormat || "{}"}
+\`\`\`
+`;
 };
 
 export function generatePrompt(data: ProjectData): string {
