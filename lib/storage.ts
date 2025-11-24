@@ -24,7 +24,8 @@ export const storage = {
         if (typeof window === "undefined") return [];
         try {
             const index = localStorage.getItem(INDEX_KEY);
-            return index ? JSON.parse(index) : [];
+            const parsed = index ? JSON.parse(index) : [];
+            return Array.isArray(parsed) ? parsed : [];
         } catch (e) {
             console.error("Failed to load project index", e);
             return [];
@@ -67,9 +68,48 @@ export const storage = {
         localStorage.setItem(INDEX_KEY, JSON.stringify(projects));
     },
 
-    // Create new project ID
-    createId: (): string => {
-        return crypto.randomUUID();
+    // Create new project with defaults
+    createProject: (type: ProjectType): string => {
+        const id = crypto.randomUUID();
+        let data: ProjectData | AgentData;
+
+        if (type === "WEB_APP") {
+            data = {
+                projectName: "Untitled Project",
+                projectSummary: "",
+                entities: [],
+                relationships: [],
+                flows: [],
+                notes: "",
+                githubRepo: "",
+                deploymentPlatform: "",
+                backendStack: "",
+                backendConfigCode: "",
+                envVars: [],
+                designSystem: {
+                    colorPalette: "monochrome",
+                    borderRadius: "square",
+                    spacing: "comfy",
+                    shadows: "flat",
+                    buttonStyle: "solid",
+                    cardStyle: "border",
+                    navigationStyle: "sticky",
+                    mobileFirst: true,
+                },
+            } as ProjectData;
+        } else {
+            data = {
+                agentName: "Untitled Agent",
+                agentPersona: "",
+                triggers: [],
+                tools: [],
+                constraints: [],
+                outputFormat: "",
+            } as AgentData;
+        }
+
+        storage.saveProject(id, data, type, type === "WEB_APP" ? "Untitled Project" : "Untitled Agent");
+        return id;
     },
 
     // Delete project

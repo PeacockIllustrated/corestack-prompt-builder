@@ -18,9 +18,7 @@ export default function DashboardPage() {
     }, []);
 
     const handleCreateProject = (type: ProjectType) => {
-        const id = storage.createId();
-        // Initialize empty project
-        storage.saveProject(id, {} as any, type, "Untitled Project");
+        const id = storage.createProject(type);
         router.push(`/editor/${id}`);
     };
 
