@@ -71,10 +71,13 @@ export default function DashboardPage() {
                 {/* Project List */}
                 <Card className="min-h-[400px] p-0 overflow-hidden flex flex-col">
                     <div className="grid grid-cols-12 gap-4 p-4 border-b border-green-800 bg-green-900/20 text-xs font-bold text-green-400 uppercase tracking-wider">
-                        <div className="col-span-8 md:col-span-4">Project Name</div>
-                        <div className="col-span-4 md:col-span-2 text-right md:text-left">Type</div>
+                        <div className="col-span-6 md:col-span-4">Project Name</div>
+                        <div className="col-span-3 md:col-span-2">Type</div>
                         <div className="hidden md:block md:col-span-3">Last Modified</div>
-                        <div className="hidden md:block md:col-span-3 text-right">ID</div>
+                        <div className="col-span-3 md:col-span-3 text-right">
+                            <span className="md:hidden">Action</span>
+                            <span className="hidden md:inline">ID</span>
+                        </div>
                     </div>
 
                     <div className="flex-1 overflow-y-auto">
@@ -91,27 +94,29 @@ export default function DashboardPage() {
                                         onClick={() => router.push(`/editor/${project.id}`)}
                                         className="grid grid-cols-12 gap-4 p-4 hover:bg-green-900/10 cursor-pointer group transition-colors items-center"
                                     >
-                                        <div className="col-span-8 md:col-span-4 font-bold text-green-300 truncate">
+                                        <div className="col-span-6 md:col-span-4 font-bold text-green-300 truncate">
                                             {project.name || "Untitled Project"}
                                         </div>
-                                        <div className="col-span-4 md:col-span-2 text-xs text-right md:text-left">
+                                        <div className="col-span-3 md:col-span-2 text-xs">
                                             <span className={`inline-block px-2 py-0.5 border ${project.type === "WEB_APP" ? "border-green-600 text-green-400" : "border-blue-600 text-blue-400"
                                                 }`}>
-                                                {project.type}
+                                                <span className="md:hidden">{project.type === "WEB_APP" ? "WEB" : "BOT"}</span>
+                                                <span className="hidden md:inline">{project.type}</span>
                                             </span>
                                         </div>
                                         <div className="hidden md:block md:col-span-3 text-xs text-green-600 font-mono">
                                             {formatDate(project.lastModified)}
                                         </div>
-                                        <div className="hidden md:flex md:col-span-3 justify-end items-center gap-4">
-                                            <span className="text-xs text-green-900 font-mono">
+                                        <div className="col-span-3 md:col-span-3 flex justify-end items-center gap-4">
+                                            <span className="text-xs text-green-900 font-mono hidden md:inline">
                                                 {project.id.slice(0, 8)}...
                                             </span>
                                             <button
                                                 onClick={(e) => handleDelete(e, project.id)}
-                                                className="text-red-900 hover:text-red-500 font-bold text-xs opacity-0 group-hover:opacity-100 transition-opacity px-2 py-1 border border-transparent hover:border-red-900"
+                                                className="text-red-900 hover:text-red-500 font-bold text-xs px-2 py-1 border border-transparent hover:border-red-900 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                                             >
-                                                [ DELETE ]
+                                                <span className="md:hidden">[ X ]</span>
+                                                <span className="hidden md:inline">[ DELETE ]</span>
                                             </button>
                                         </div>
                                     </div>
