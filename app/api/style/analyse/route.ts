@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { StyleSystem, RawStyleObservation } from "@/lib/style/types";
+import { StyleSystem } from "@/lib/style/types";
 import { buildStylePrompt, TargetPlatform } from "@/lib/style/buildStylePrompt";
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || "");
@@ -114,8 +114,11 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ styleSystem, stylePrompt });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Analysis error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || "Internal server error" },
+      { status: 500 }
+    );
   }
 }
