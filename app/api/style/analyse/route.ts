@@ -6,39 +6,28 @@ import { buildStylePrompt, TargetPlatform } from "@/lib/style/buildStylePrompt";
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || "");
 
 export async function POST(req: NextRequest) {
-    try {
-        const body = await req.json();
-        const { mode, targetPlatform, source } = body as {
-            mode: "css" | "description";
-            targetPlatform: TargetPlatform;
-            source: string;
-        };
+  try {
+    const body = await req.json();
+    const { mode, targetPlatform, source } = body as {
+      mode: "css" | "description" | "image";
+      targetPlatform: TargetPlatform;
+      source: string;
+    };
 
-        if (!source) {
-            return NextResponse.json({ error: "Source is required" }, { status: 400 });
-        }
+    if (!source) {
+      return NextResponse.json({ error: "Source is required" }, { status: 400 });
+    }
 
-        // 1. Parse raw input (Simplified for now, relying heavily on LLM)
-        let rawObservation: Partial<RawStyleObservation> | string = source;
+    // 2. Canonicalise into StyleSystem using LLM
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
 
-        if (mode === "css") {
-            // Basic extraction could go here (regex for hex codes, etc.)
-            // For now, we'll pass the raw CSS/TSX to the LLM to parse and structure
-            rawObservation = source;
-        }
-
-        // 2. Canonicalise into StyleSystem using LLM
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
-
-        const prompt = `
+    const systemPrompt = `
       You are an expert design system engineer.
       Your task is to analyze the following input and extract a strict design system.
       
       Input Mode: ${mode}
-      Input Data:
-      \`\`\`
-      ${source.slice(0, 10000)} // Truncate to avoid token limits if necessary
-      \`\`\`
+      ${mode === "image" ? "Analyze the uploaded image to extract colors, typography, and component styles." : "Input Data:"}
+      ${mode !== "image" ? `\`\`\`\n${source.slice(0, 10000)}\n\`\`\`` : ""}
 
       Output must be a valid JSON object matching this TypeScript interface:
       
@@ -80,7 +69,7 @@ export async function POST(req: NextRequest) {
           usage?: string;
         }[];
         principles: string[];
-      }
+    }
 
       RULES:
       1. Extract specific hex codes or values from the input.
@@ -89,27 +78,44 @@ export async function POST(req: NextRequest) {
       4. Return ONLY the JSON object. No markdown formatting, no code blocks.
     `;
 
-        const result = await model.generateContent(prompt);
-        const responseText = result.response.text();
+    let result;
+    if (mode === "image") {
+      const base64Data = source.split(",")[1];
+      const mimeType = source.split(";")[0].split(":")[1];
 
-        // Clean up potential markdown code blocks
-        const cleanJson = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
-
-        let styleSystem: StyleSystem;
-        try {
-            styleSystem = JSON.parse(cleanJson);
-        } catch (e) {
-            console.error("Failed to parse LLM response:", responseText);
-            return NextResponse.json({ error: "Failed to generate valid JSON style system" }, { status: 500 });
+      result = await model.generateContent([
+        systemPrompt,
+        {
+          inlineData: {
+            data: base64Data,
+            mimeType: mimeType
+          }
         }
-
-        // 3. Build style prompt
-        const stylePrompt = buildStylePrompt(styleSystem, targetPlatform);
-
-        return NextResponse.json({ styleSystem, stylePrompt });
-
-    } catch (error) {
-        console.error("Analysis error:", error);
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      ]);
+    } else {
+      result = await model.generateContent(systemPrompt);
     }
+
+    const responseText = result.response.text();
+
+    // Clean up potential markdown code blocks
+    const cleanJson = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
+
+    let styleSystem: StyleSystem;
+    try {
+      styleSystem = JSON.parse(cleanJson);
+    } catch (e) {
+      console.error("Failed to parse LLM response:", responseText);
+      return NextResponse.json({ error: "Failed to generate valid JSON style system" }, { status: 500 });
+    }
+
+    // 3. Build style prompt
+    const stylePrompt = buildStylePrompt(styleSystem, targetPlatform);
+
+    return NextResponse.json({ styleSystem, stylePrompt });
+
+  } catch (error) {
+    console.error("Analysis error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 }

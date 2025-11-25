@@ -15,8 +15,9 @@ export default function StyleExtractorPage() {
     const router = useRouter();
     const { setStyle } = useStyleContext();
 
-    const [mode, setMode] = useState<"css" | "description">("css");
+    const [mode, setMode] = useState<"css" | "description" | "image">("css");
     const [source, setSource] = useState("");
+    const [imageFile, setImageFile] = useState<string | null>(null);
     const [targetPlatform, setTargetPlatform] = useState<TargetPlatform>("generic");
     const [isAnalyzing, setIsAnalyzing] = useState(false);
 
@@ -25,15 +26,31 @@ export default function StyleExtractorPage() {
         stylePrompt: string;
     } | null>(null);
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImageFile(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const handleAnalyze = async () => {
-        if (!source.trim()) return;
+        if (mode !== "image" && !source.trim()) return;
+        if (mode === "image" && !imageFile) return;
 
         setIsAnalyzing(true);
         try {
             const res = await fetch("/api/style/analyse", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ mode, source, targetPlatform }),
+                body: JSON.stringify({
+                    mode,
+                    source: mode === "image" ? imageFile : source,
+                    targetPlatform
+                }),
             });
 
             if (!res.ok) throw new Error("Analysis failed");
@@ -65,7 +82,7 @@ export default function StyleExtractorPage() {
                             &gt; STYLE_EXTRACTOR_
                         </h1>
                         <p className="text-green-700 mt-2 text-sm md:text-base font-mono">
-              // Turn CSS/Descriptions into strict design systems
+              // Turn CSS/Descriptions/Images into strict design systems
                         </p>
                     </div>
                     <Button variant="secondary" onClick={() => router.push("/dashboard")}>
@@ -83,7 +100,7 @@ export default function StyleExtractorPage() {
 
                             <div>
                                 <Label>Input Mode</Label>
-                                <div className="flex gap-4 mt-2">
+                                <div className="flex gap-4 mt-2 flex-wrap">
                                     <ASCIIRadio
                                         label="CSS / TSX"
                                         checked={mode === "css"}
@@ -94,24 +111,49 @@ export default function StyleExtractorPage() {
                                         checked={mode === "description"}
                                         onClick={() => setMode("description")}
                                     />
+                                    <ASCIIRadio
+                                        label="Image Upload"
+                                        checked={mode === "image"}
+                                        onClick={() => setMode("image")}
+                                    />
                                 </div>
                             </div>
 
                             <div>
                                 <Label>
-                                    {mode === "css" ? "Paste CSS / Tailwind / TSX" : "Describe the Design"}
+                                    {mode === "css" ? "Paste CSS / Tailwind / TSX" : mode === "description" ? "Describe the Design" : "Upload Screenshot / Mockup"}
                                 </Label>
-                                <Textarea
-                                    value={source}
-                                    onChange={(e) => setSource(e.target.value)}
-                                    placeholder={
-                                        mode === "css"
-                                            ? ".btn { background: #000; } \n<div className='p-4 bg-red-500'>..."
-                                            : "A dark cyberpunk theme with neon green accents, sharp corners, and monospace fonts..."
-                                    }
-                                    rows={12}
-                                    className="font-mono text-xs"
-                                />
+                                {mode === "image" ? (
+                                    <div className="border border-green-800 border-dashed bg-green-900/10 p-8 text-center rounded-sm hover:bg-green-900/20 transition-colors relative">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleFileChange}
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                        />
+                                        <div className="space-y-2 pointer-events-none">
+                                            <div className="text-green-500 font-bold text-lg">[ DROP_IMAGE_HERE ]</div>
+                                            <div className="text-green-700 text-xs">or click to select file</div>
+                                            {imageFile && (
+                                                <div className="mt-4 text-green-400 text-xs break-all">
+                                                    Selected: [IMAGE_DATA_LOADED]
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <Textarea
+                                        value={source}
+                                        onChange={(e) => setSource(e.target.value)}
+                                        placeholder={
+                                            mode === "css"
+                                                ? ".btn { background: #000; } \n<div className='p-4 bg-red-500'>..."
+                                                : "A dark cyberpunk theme with neon green accents, sharp corners, and monospace fonts..."
+                                        }
+                                        rows={12}
+                                        className="font-mono text-xs"
+                                    />
+                                )}
                             </div>
 
                             <div>
@@ -130,7 +172,7 @@ export default function StyleExtractorPage() {
 
                             <Button
                                 onClick={handleAnalyze}
-                                disabled={isAnalyzing || !source.trim()}
+                                disabled={isAnalyzing || (mode === "image" ? !imageFile : !source.trim())}
                                 className="w-full"
                             >
                                 {isAnalyzing ? "[ ANALYZING... ]" : "[ ANALYZE_STYLE ]"}
