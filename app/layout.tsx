@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, VT323 } from "next/font/google";
 import "./globals.css";
+import { StyleProvider } from "@/lib/style/StyleContext";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const jetbrainsMono = JetBrains_Mono({
@@ -26,12 +27,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${jetbrainsMono.variable} ${vt323.variable} font-mono bg-black text-green-500 antialiased overflow-x-hidden`}>
-        <div className="crt-overlay pointer-events-none fixed inset-0 z-50"></div>
-        <div className="scanline pointer-events-none fixed inset-0 z-50"></div>
-        <div className="vignette pointer-events-none fixed inset-0 z-40"></div>
-        <div className="relative z-10">
-          {children}
-        </div>
+        <StyleProvider>
+          <div className="crt-overlay pointer-events-none fixed inset-0 z-50"></div>
+          <div className="scanline pointer-events-none fixed inset-0 z-50"></div>
+          <div className="vignette pointer-events-none fixed inset-0 z-40"></div>
+          <div className="relative z-10">
+            {children}
+          </div>
+        </StyleProvider>
       </body>
     </html>
   );

@@ -59,12 +59,15 @@ export default function DashboardPage() {
                 </header>
 
                 {/* Actions */}
-                <div className="flex gap-4">
+                <div className="flex gap-4 flex-wrap md:flex-nowrap">
                     <Button onClick={() => handleCreateProject("WEB_APP")} className="flex-1 md:flex-none">
                         [ + NEW_WEB_APP ]
                     </Button>
                     <Button onClick={() => handleCreateProject("AGENT")} className="flex-1 md:flex-none" variant="secondary">
                         [ + NEW_AGENT ]
+                    </Button>
+                    <Button onClick={() => router.push("/style-extractor")} className="flex-1 md:flex-none border-green-600 text-green-400 hover:bg-green-900/20">
+                        [ &gt; STYLE_EXTRACTOR ]
                     </Button>
                 </div>
 

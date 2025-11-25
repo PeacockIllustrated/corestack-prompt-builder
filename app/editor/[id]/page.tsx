@@ -16,6 +16,7 @@ import { EnvVarInput, EnvVar } from "@/components/ui/EnvVarInput";
 import { DesignSystemBuilder, DesignSystem } from "@/components/ui/DesignSystemBuilder";
 import { ASCIIRadio } from "@/components/ui/ASCIIRadio";
 import { AgentBuilder, AgentData } from "@/components/modules/AgentBuilder";
+import { useStyleContext } from "@/lib/style/StyleContext";
 
 export default function EditorPage() {
     const params = useParams();
@@ -100,13 +101,22 @@ export default function EditorPage() {
     const [magicPrompt, setMagicPrompt] = useState("");
     const [isGenerating, setIsGenerating] = useState(false);
 
+    const { stylePrompt } = useStyleContext();
+
     useEffect(() => {
+        let generated = "";
         if (projectType === "WEB_APP") {
-            setPrompt(generatePrompt(formData));
+            generated = generatePrompt(formData);
         } else {
-            setPrompt(generateAgentPrompt(agentData));
+            generated = generateAgentPrompt(agentData);
         }
-    }, [formData, agentData, projectType]);
+
+        if (stylePrompt) {
+            generated += `\n\n---\nSTYLE GUIDELINES\n${stylePrompt}`;
+        }
+
+        setPrompt(generated);
+    }, [formData, agentData, projectType, stylePrompt]);
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
