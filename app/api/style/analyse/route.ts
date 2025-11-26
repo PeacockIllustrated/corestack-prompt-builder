@@ -72,6 +72,14 @@ export async function POST(req: NextRequest) {
           input?: string;
           chip?: string;
         };
+        components: {
+          name: string;
+          variants?: string[];
+          description: string;
+          usage?: string;
+        }[];
+      }
+
       3. 'components' should ONLY include the following if clearly visible or described:
          - "Button"
          - "Card"
