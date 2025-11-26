@@ -224,12 +224,85 @@ export default function StyleExtractorPage() {
 
                     {/* RIGHT: Outputs */}
                     <div className="space-y-8">
-                        <div>[ NO_DATA_GENERATED ]</div>
-                    </div>
+                        <h2 className="text-lg font-bold uppercase text-green-600 border-b border-green-800 pb-2">
+                            [2] GENERATED SYSTEM
+                        </h2>
+
+                        {result ? (
+                            <div className="space-y-8 animate-in fade-in duration-500">
+
+                                {/* Visual Preview */}
+                                <Card className="p-0 overflow-hidden border-green-600/50 shadow-[0_0_20px_rgba(34,197,94,0.1)]">
+                                    <div className="bg-green-900/20 p-3 border-b border-green-800 flex justify-between items-center">
+                                        <span className="text-sm font-bold text-green-400 pl-2 tracking-wider">
+                                            [ VISUAL_PREVIEW ]
+                                        </span>
+                                    </div>
+                                    <div className="p-6 bg-black/50">
+                                        <StylePreview system={result.styleSystem} />
+                                    </div>
+                                </Card>
+
+                                <div className="grid grid-cols-1 gap-4">
+                                    <Card className="p-0 overflow-hidden flex flex-col max-h-[200px]">
+                                        <div className="bg-green-900/20 p-2 border-b border-green-800 flex justify-between items-center">
+                                            <span className="text-xs font-mono text-green-400 pl-2">
+                                                style_prompt.md
+                                            </span>
+                                            <Button
+                                                onClick={() => navigator.clipboard.writeText(result.stylePrompt)}
+                                                variant="secondary"
+                                                className="text-xs h-7"
+                                            >
+                                                [ COPY_PROMPT ]
+                                            </Button>
+                                        </div>
+                                        <div className="p-4 overflow-y-auto custom-scrollbar bg-black">
+                                            <pre className="whitespace-pre-wrap font-mono text-xs text-green-500/90 leading-relaxed">
+                                                {result.stylePrompt}
+                                            </pre>
+                                        </div>
+                                    </Card>
+
+                                    <Card className="p-0 overflow-hidden flex flex-col max-h-[200px]">
+                                        <div className="bg-green-900/20 p-2 border-b border-green-800 flex justify-between items-center">
+                                            <span className="text-xs font-mono text-green-400 pl-2">
+                                                system.json
+                                            </span>
+                                            <Button
+                                                onClick={() => navigator.clipboard.writeText(JSON.stringify(result.styleSystem, null, 2))}
+                                                variant="secondary"
+                                                className="text-xs h-7"
+                                            >
+                                                [ COPY_JSON ]
+                                            </Button>
+                                        </div>
+                                        <div className="p-4 overflow-y-auto custom-scrollbar bg-black">
+                                            <pre className="whitespace-pre-wrap font-mono text-xs text-green-600/80">
+                                                {JSON.stringify(result.styleSystem, null, 2)}
+                                            </pre>
+                                        </div>
+                                    </Card>
+                                </div>
+
+                                <div className="pt-4 border-t border-green-800">
+                                    <Button onClick={handleSetActive} className="w-full">
+                                        [ SET_AS_ACTIVE_SYSTEM ]
+                                    </Button>
+                                    <p className="text-center text-green-700 text-xs mt-2">
+                                        // This will apply the style to all new prompts generated in this session
+                                    </p>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="h-full flex flex-col items-center justify-center text-green-800 space-y-4 opacity-50 min-h-[400px] border border-green-900 border-dashed rounded-sm">
+                                <div className="text-4xl">Waiting for Input...</div>
+                                <div>[ NO_DATA_GENERATED ]</div>
+                            </div>
                         )}
+                    </div>
                 </div>
             </div>
-        </div>
-        </main >
+        </main>
     );
 }
