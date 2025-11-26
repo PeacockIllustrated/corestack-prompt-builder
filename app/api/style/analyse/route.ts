@@ -28,8 +28,11 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. Canonicalise into StyleSystem using LLM
-    // Use gemini-2.0-flash-exp as verified by diagnostics
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+    // Use gemini-2.0-flash-exp with JSON mode enforcement
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash-exp",
+      generationConfig: { responseMimeType: "application/json" }
+    });
 
     const systemPrompt = `
       You are an expert design system engineer.
@@ -126,8 +129,11 @@ export async function POST(req: NextRequest) {
     try {
       styleSystem = JSON.parse(cleanJson);
     } catch (e) {
-      console.error("Failed to parse LLM response:", responseText);
-      return NextResponse.json({ error: "Failed to generate valid JSON style system" }, { status: 500 });
+      console.error("JSON Parse Error. Raw response:", responseText);
+      return NextResponse.json({
+        error: "Failed to parse AI response. See console for details.",
+        details: responseText.slice(0, 500) // Return start of response for debugging
+      }, { status: 500 });
     }
 
     // 3. Build style prompt
