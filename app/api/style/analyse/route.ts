@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
     const responseText = result.response.text();
 
     // Clean up potential markdown code blocks (regex fix verified)
-    const cleanJson = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
+    const cleanJson = responseText.replace(new RegExp('```json', 'g'), "").replace(new RegExp('```', 'g'), "").trim();
 
     let styleSystem: StyleSystem;
     try {
