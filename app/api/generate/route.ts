@@ -1,10 +1,18 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY || "";
+const genAI = new GoogleGenerativeAI(apiKey);
 
 export async function POST(req: Request) {
     try {
+        if (!apiKey) {
+            return NextResponse.json(
+                { error: "GOOGLE_API_KEY or GEMINI_API_KEY is not set" },
+                { status: 500 }
+            );
+        }
+
         const { prompt } = await req.json();
 
         if (!prompt) {
@@ -14,7 +22,7 @@ export async function POST(req: Request) {
             );
         }
 
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const systemPrompt = `
       You are a system architect. 

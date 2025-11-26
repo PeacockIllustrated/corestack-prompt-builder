@@ -3,7 +3,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { StyleSystem } from "@/lib/style/types";
 import { buildStylePrompt, TargetPlatform } from "@/lib/style/buildStylePrompt";
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || "");
+const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY || "";
+const genAI = new GoogleGenerativeAI(apiKey);
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,8 +19,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Source is required" }, { status: 400 });
     }
 
-    if (!process.env.GOOGLE_API_KEY) {
-      return NextResponse.json({ error: "GOOGLE_API_KEY is not set" }, { status: 500 });
+    if (!apiKey) {
+      return NextResponse.json({ error: "GOOGLE_API_KEY or GEMINI_API_KEY is not set" }, { status: 500 });
     }
 
     // 2. Canonicalise into StyleSystem using LLM
