@@ -156,7 +156,11 @@ function ComponentCard({ name, system, detected }: { name: string, system: Style
             const res = await fetch("/api/style/generate-component", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ styleSystem: system, componentName: name }),
+                body: JSON.stringify({
+                    styleSystem: system,
+                    componentName: name,
+                    componentContext: detected
+                }),
             });
             const data = await res.json();
             if (data.code) {

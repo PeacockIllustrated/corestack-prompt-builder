@@ -12,9 +12,10 @@ export async function POST(req: NextRequest) {
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const body = await req.json();
-        const { styleSystem, componentName } = body as {
+        const { styleSystem, componentName, componentContext } = body as {
             styleSystem: StyleSystem;
             componentName: string;
+            componentContext?: any; // StyleComponent
         };
 
         if (!styleSystem || !componentName) {
@@ -26,6 +27,18 @@ export async function POST(req: NextRequest) {
             generationConfig: { responseMimeType: "application/json" }
         });
 
+        let contextPrompt = "";
+        if (componentContext) {
+            contextPrompt = `
+            CONTEXT FROM IMAGE ANALYSIS (CRITICAL - FOLLOW THIS):
+            - Description: ${componentContext.description}
+            - Variants Observed: ${componentContext.variants?.join(", ") || "None"}
+            - Usage Notes: ${componentContext.usage || "None"}
+            
+            You MUST prioritize the visual description above over generic conventions.
+            `;
+        }
+
         const prompt = `
             You are an expert UI engineer using Tailwind CSS.
             Your task is to generate a production-ready HTML component for a "${componentName}".
@@ -35,6 +48,8 @@ export async function POST(req: NextRequest) {
             - Radius: ${JSON.stringify(styleSystem.radius)}
             - Typography: ${JSON.stringify(styleSystem.typography)}
             - Spacing Scale: ${JSON.stringify(styleSystem.spacingScale)}
+            
+            ${contextPrompt}
             
             INSTRUCTIONS:
             1. Return a single JSON object with a "code" field containing the HTML string.
