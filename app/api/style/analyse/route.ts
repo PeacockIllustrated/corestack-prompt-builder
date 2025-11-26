@@ -66,29 +66,6 @@ export async function POST(req: NextRequest) {
           };
         };
         spacingScale: number[]; // e.g. [4, 8, 12, 16, 24]
-        radius?: {
-          button?: string;
-          card?: string;
-          input?: string;
-          chip?: string;
-        };
-        components: {
-          name: string;
-          variants?: string[];
-          description: string;
-          usage?: string;
-        }[];
-        principles: string[];
-    }
-
-      RULES:
-      1. Extract specific hex codes or values from the input.
-      2. If values are missing, INFER reasonable defaults based on the aesthetic described or implied (e.g. if "dark mode" is mentioned, use dark backgrounds).
-      3. Cluster similar colors. Pick ONE primary, ONE background, etc.
-      4. Return ONLY the JSON object. No markdown formatting, no code blocks.
-    `;
-
-    let result;
     if (mode === "image") {
       if (!source.includes(",")) {
         throw new Error("Invalid image data format");

@@ -239,7 +239,10 @@ export default function StyleExtractorPage() {
                                         </span>
                                     </div>
                                     <div className="p-6 bg-black/50">
-                                        <StylePreview system={result.styleSystem} />
+                                        <StylePreview
+                                            system={result.styleSystem}
+                                            originalImage={mode === "image" ? imageFile : null}
+                                        />
                                     </div>
                                 </Card>
 
