@@ -66,6 +66,29 @@ export async function POST(req: NextRequest) {
           };
         };
         spacingScale: number[]; // e.g. [4, 8, 12, 16, 24]
+        radius?: {
+          button?: string;
+          card?: string;
+          input?: string;
+          chip?: string;
+        };
+      3. 'components' should ONLY include the following if clearly visible or described:
+         - "Button"
+         - "Card"
+         - "Input"
+         - "Navbar"
+         - "Modal"
+         - "Alert"
+         For each found component, provide:
+         - name: One of the exact names above.
+         - variants: List of visible variants (e.g. "primary", "outline").
+         - description: Visual description (shape, color, shadow).
+         - usage: Brief usage note.
+
+      4. Return ONLY the JSON. No markdown formatting.
+    `;
+
+    let result;
     if (mode === "image") {
       if (!source.includes(",")) {
         throw new Error("Invalid image data format");
@@ -88,8 +111,8 @@ export async function POST(req: NextRequest) {
 
     const responseText = result.response.text();
 
-    // Clean up potential markdown code blocks (regex fix verified)
-    const cleanJson = responseText.replace(new RegExp('```json', 'g'), "").replace(new RegExp('```', 'g'), "").trim();
+    // Clean up potential markdown code blocks
+    const cleanJson = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
 
     let styleSystem: StyleSystem;
     try {
