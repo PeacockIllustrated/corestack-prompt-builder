@@ -61,14 +61,14 @@ export function buildStylePrompt(
             ].join("\n")
             : "",
         "COMPONENTS:",
-        ...components.map((c) => {
+        ...(components || []).map((c) => {
             const v = c.variants && c.variants.length ? ` (variants: ${c.variants.join(", ")})` : "";
             const usage = c.usage ? ` Usage: ${c.usage}` : "";
             return `- ${c.name}${v}: ${c.description}.${usage}`;
         }),
         "",
         "STYLE PRINCIPLES:",
-        ...principles.map((p) => `- ${p}`),
+        ...(principles || []).map((p) => `- ${p}`),
         "",
         "GUIDELINES:",
         "- Never invent new colours; only use the tokens defined above.",

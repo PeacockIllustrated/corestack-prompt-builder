@@ -81,6 +81,7 @@ export async function POST(req: NextRequest) {
           description: string;
           usage?: string;
         }[];
+        principles: string[];
       }
 
       3. 'components' should ONLY include the following if clearly visible or described:
