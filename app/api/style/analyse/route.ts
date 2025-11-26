@@ -162,8 +162,21 @@ export async function POST(req: NextRequest) {
       stack: error.stack,
       cause: error.cause
     });
+
+    // Return detailed diagnostic info for the user
     return NextResponse.json(
-      { error: error.message || "Internal server error" },
+      {
+        error: "Analysis Failed",
+        debug: {
+          message: error.message,
+          stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+          env: {
+            GOOGLE_KEY_SET: !!process.env.GOOGLE_API_KEY,
+            GEMINI_KEY_SET: !!process.env.GEMINI_API_KEY,
+          },
+          timestamp: new Date().toISOString()
+        }
+      },
       { status: 500 }
     );
   }

@@ -95,13 +95,25 @@ export default function StyleExtractorPage() {
                 body: JSON.stringify(payload),
             });
 
-            if (!res.ok) throw new Error("Analysis failed");
+            if (!res.ok) {
+                const errorData = await res.json();
+                console.error("API Error Details:", errorData);
+                throw new Error(errorData.error || "Analysis failed");
+            }
 
             const data = await res.json();
             setResult(data);
-        } catch (error) {
-            console.error(error);
-            alert("Failed to analyze style. Please try again.");
+        } catch (error: any) {
+            console.error("Analysis Error:", error);
+
+            // Try to parse the error response if available
+            let errorMessage = "Failed to analyze style. Please try again.";
+            if (error.message) errorMessage = error.message;
+
+            // If we have a debug object from the API (we need to catch this from the fetch response)
+            // Ideally, we should handle the non-ok response better above.
+
+            alert(`Analysis Error: ${errorMessage}\n\nCheck console for full debug details.`);
         } finally {
             setIsAnalyzing(false);
         }
