@@ -150,6 +150,8 @@ function ComponentCard({ name, system, detected }: { name: string, system: Style
     const { colors, radius, spacingScale } = system;
     const getSpacing = (index: number) => `${spacingScale[index] || 8}px`;
 
+    const [userInstruction, setUserInstruction] = useState("");
+
     const handleGenerate = async () => {
         setIsGenerating(true);
         try {
@@ -159,7 +161,8 @@ function ComponentCard({ name, system, detected }: { name: string, system: Style
                 body: JSON.stringify({
                     styleSystem: system,
                     componentName: name,
-                    componentContext: detected
+                    componentContext: detected,
+                    userInstruction: userInstruction // Pass user instruction
                 }),
             });
             const data = await res.json();
@@ -228,7 +231,7 @@ function ComponentCard({ name, system, detected }: { name: string, system: Style
                             <span className="text-xs font-mono">[ GENERATING... ]</span>
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center gap-3">
+                        <div className="flex flex-col items-center gap-3 w-full">
                             {/* Static Preview Placeholder (Simplified) */}
                             <div className="opacity-50 scale-90 pointer-events-none grayscale group-hover:grayscale-0 transition-all duration-500">
                                 {name === "Button" && <button className="px-4 py-2 bg-green-600 text-black rounded font-bold">Button</button>}
@@ -239,9 +242,18 @@ function ComponentCard({ name, system, detected }: { name: string, system: Style
                                 {name === "Alert" && <div className="w-32 h-8 bg-green-900/20 border-l-2 border-green-500 rounded" />}
                             </div>
 
-                            <Button onClick={handleGenerate} className="shadow-lg shadow-green-900/20">
-                                [ GENERATE COMPONENT ]
-                            </Button>
+                            <div className="w-full max-w-[200px] space-y-2">
+                                <input
+                                    type="text"
+                                    placeholder="e.g. 'Add a glow effect'"
+                                    className="w-full bg-black/50 border border-green-900/50 rounded px-2 py-1 text-[10px] text-green-400 placeholder-green-900/50 focus:outline-none focus:border-green-500"
+                                    value={userInstruction}
+                                    onChange={(e) => setUserInstruction(e.target.value)}
+                                />
+                                <Button onClick={handleGenerate} className="w-full shadow-lg shadow-green-900/20">
+                                    [ GENERATE ]
+                                </Button>
+                            </div>
                         </div>
                     )}
 

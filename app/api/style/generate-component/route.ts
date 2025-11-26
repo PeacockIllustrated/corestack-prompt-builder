@@ -12,10 +12,11 @@ export async function POST(req: NextRequest) {
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const body = await req.json();
-        const { styleSystem, componentName, componentContext } = body as {
+        const { styleSystem, componentName, componentContext, userInstruction } = body as {
             styleSystem: StyleSystem;
             componentName: string;
             componentContext?: any; // StyleComponent
+            userInstruction?: string;
         };
 
         if (!styleSystem || !componentName) {
@@ -39,15 +40,52 @@ export async function POST(req: NextRequest) {
             `;
         }
 
+        let instructionPrompt = "";
+        if (userInstruction) {
+            instructionPrompt = `
+            USER OVERRIDE INSTRUCTION:
+            "${userInstruction}"
+            
+            Follow this instruction precisely, even if it contradicts the style system slightly (e.g. if user asks for a specific color or layout).
+            `;
+        }
+
         const prompt = `
-            You are an expert UI engineer using Tailwind CSS.
-            Your task is to generate a production-ready HTML component for a "${componentName}".
+            You are an Award-Winning UI/UX Designer & Creative Technologist.
+            Your goal is NOT just to build a component, but to create a "Showcase" element that wows the user.
+            
+            Task: Generate a production-ready, impressive HTML component for a "${componentName}".
             
             STRICT DESIGN SYSTEM TO FOLLOW:
             - Colors: ${JSON.stringify(styleSystem.colors)}
             - Radius: ${JSON.stringify(styleSystem.radius)}
             - Typography: ${JSON.stringify(styleSystem.typography)}
             - Spacing Scale: ${JSON.stringify(styleSystem.spacingScale)}
+            
+            ${contextPrompt}
+            ${instructionPrompt}
+            
+            CREATIVE DIRECTOR GUIDELINES:
+            1. **Micro-Interactions**: Every interactive element MUST have hover, active, and focus states. Use 'transition-all duration-300' for smooth feel.
+            2. **Modern Polish**: If the style allows, add subtle details like:
+               - 'backdrop-blur-md' for glassmorphism.
+               - 'shadow-lg' or 'shadow-green-500/20' for depth.
+               - 'ring-offset-2' for focus accessibility.
+            3. **Showcase Quality**: Don't just make a button. Make a button with an icon, or a loading state, or a gradient border. Don't just make a card. Make a card with a badge, an image placeholder, and a "Learn More" link.
+            4. **Smart Adaptation**:
+               - If background is dark, ensure text is light and add glow effects.
+               - If style is minimal, focus on perfect padding and typography.
+            
+            INSTRUCTIONS:
+            1. Return a single JSON object with a "code" field containing the HTML string.
+            2. Use ONLY Tailwind CSS classes.
+            3. **CRITICAL**: If the "CONTEXT FROM IMAGE ANALYSIS" description mentions gradients, specific colors, or effects (e.g. "purple gradient", "glassmorphism") that are not perfectly represented in the "STRICT DESIGN SYSTEM", you **MUST** use Tailwind utility classes (like 'bg-gradient-to-r', 'from-purple-600', 'backdrop-blur') to achieve the described look. **Visual fidelity to the Description takes precedence over strict adherence to the simple color palette.**
+            4. The component should be fully functional and accessible (e.g. correct aria attributes).
+            5. Do not include <html>, <body>, or markdown fences. Just the component HTML.
+            6. Ensure high contrast and visual fidelity.
+            
+            Output Format:
+            {
                 "code": "<button class='...'>...</button>"
             }
         `;
