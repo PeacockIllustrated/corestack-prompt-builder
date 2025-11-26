@@ -210,8 +210,8 @@ function ComponentCard({ name, system, detected }: { name: string, system: Style
                                     COPY HTML
                                 </Button>
                                 <Button
-                                    variant="ghost"
-                                    className="h-6 text-[10px] text-green-600 hover:text-green-400"
+                                    variant="secondary"
+                                    className="h-6 text-[10px] text-green-600 hover:text-green-400 border-none bg-transparent hover:bg-transparent"
                                     onClick={handleGenerate}
                                 >
                                     REGENERATE
