@@ -38,6 +38,12 @@ export async function POST(req: NextRequest) {
       You are an expert design system engineer.
       Your task is to analyze the following input and extract a strict design system.
       
+      CRITICAL INSTRUCTION:
+      - You must extract the **EXACT** colors found in the image.
+      - Do NOT default to a "hacker" (green/black) or "corporate" (blue/white) theme unless the image actually looks like that.
+      - If the image has gradients, pick the dominant stops as primary/accent colors.
+      - Be precise with hex codes.
+      
       Input Mode: ${mode}
       ${mode === "image" ? "Analyze the uploaded image to extract colors, typography, and component styles." : "Input Data:"}
       ${mode !== "image" ? `\`\`\`\n${source.slice(0, 10000)}\n\`\`\`` : ""}

@@ -53,10 +53,11 @@ export async function POST(req: NextRequest) {
             
             INSTRUCTIONS:
             1. Return a single JSON object with a "code" field containing the HTML string.
-            2. Use ONLY Tailwind CSS classes. Do not use arbitrary values (e.g. w-[123px]) unless absolutely necessary; stick to the design system.
-            3. The component should be fully functional and accessible (e.g. correct aria attributes).
-            4. Do not include <html>, <body>, or markdown fences. Just the component HTML.
-            5. Ensure high contrast and visual fidelity.
+            2. Use ONLY Tailwind CSS classes.
+            3. **CRITICAL**: If the "CONTEXT FROM IMAGE ANALYSIS" description mentions gradients, specific colors, or effects (e.g. "purple gradient", "glassmorphism") that are not perfectly represented in the "STRICT DESIGN SYSTEM", you **MUST** use Tailwind utility classes (like `bg-gradient - to - r`, `from - purple - 600`, `backdrop - blur`) to achieve the described look. **Visual fidelity to the Description takes precedence over strict adherence to the simple color palette.**
+            4. The component should be fully functional and accessible (e.g. correct aria attributes).
+            5. Do not include <html>, <body>, or markdown fences. Just the component HTML.
+            6. Ensure high contrast and visual fidelity.
             
             Output Format:
             {
