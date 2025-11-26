@@ -250,7 +250,7 @@ export default function StyleExtractorPage() {
                                             [ VISUAL_PREVIEW ]
                                         </span>
                                     </div>
-                                    <div className="p-6 bg-black/50">
+                                    <div className="p-0 bg-black/50">
                                         <StylePreview
                                             system={result.styleSystem}
                                             originalImage={mode === "image" ? imageFile : null}
