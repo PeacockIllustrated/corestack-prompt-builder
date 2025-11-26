@@ -28,8 +28,8 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. Canonicalise into StyleSystem using LLM
-    // Use gemini-1.5-pro for best quality and reasoning
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    // Use gemini-2.0-flash-exp as verified by diagnostics
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
 
     const systemPrompt = `
       You are an expert design system engineer.
