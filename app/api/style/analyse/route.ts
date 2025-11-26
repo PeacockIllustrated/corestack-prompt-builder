@@ -18,8 +18,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Source is required" }, { status: 400 });
     }
 
+    if (!process.env.GOOGLE_API_KEY) {
+      return NextResponse.json({ error: "GOOGLE_API_KEY is not set" }, { status: 500 });
+    }
+
     // 2. Canonicalise into StyleSystem using LLM
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+    // Use gemini-1.5-flash for better stability and availability
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const systemPrompt = `
       You are an expert design system engineer.

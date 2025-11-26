@@ -81,14 +81,17 @@ export default function StyleExtractorPage() {
 
         setIsAnalyzing(true);
         try {
+            const payload = {
+                mode,
+                source: mode === "image" ? imageFile : source,
+                targetPlatform
+            };
+            console.log("Sending payload size:", JSON.stringify(payload).length);
+
             const res = await fetch("/api/style/analyse", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    mode,
-                    source: mode === "image" ? imageFile : source,
-                    targetPlatform
-                }),
+                body: JSON.stringify(payload),
             });
 
             if (!res.ok) throw new Error("Analysis failed");
