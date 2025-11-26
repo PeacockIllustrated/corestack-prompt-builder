@@ -23,7 +23,8 @@ export async function POST(req: Request) {
             );
         }
 
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        // Use gemini-1.5-pro for best reasoning capabilities
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
         const systemPrompt = `
       You are a system architect. 
