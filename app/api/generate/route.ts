@@ -1,18 +1,19 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
-const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY || "";
-const genAI = new GoogleGenerativeAI(apiKey);
-
 export async function POST(req: Request) {
     try {
+        const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
+
         if (!apiKey) {
+            console.error("API Key missing in generate route");
             return NextResponse.json(
-                { error: "GOOGLE_API_KEY or GEMINI_API_KEY is not set" },
+                { error: "Server configuration error: API Key missing" },
                 { status: 500 }
             );
         }
 
+        const genAI = new GoogleGenerativeAI(apiKey);
         const { prompt } = await req.json();
 
         if (!prompt) {
@@ -54,10 +55,10 @@ export async function POST(req: Request) {
         const data = JSON.parse(cleanText);
 
         return NextResponse.json(data);
-    } catch (error) {
+    } catch (error: any) {
         console.error("AI Generation Error:", error);
         return NextResponse.json(
-            { error: "Failed to generate content" },
+            { error: error.message || "Failed to generate content" },
             { status: 500 }
         );
     }

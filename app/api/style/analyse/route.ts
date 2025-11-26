@@ -3,11 +3,19 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { StyleSystem } from "@/lib/style/types";
 import { buildStylePrompt, TargetPlatform } from "@/lib/style/buildStylePrompt";
 
-const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY || "";
-const genAI = new GoogleGenerativeAI(apiKey);
-
 export async function POST(req: NextRequest) {
   try {
+    const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
+
+    if (!apiKey) {
+      console.error("API Key missing. Env vars:", {
+        GOOGLE: !!process.env.GOOGLE_API_KEY,
+        GEMINI: !!process.env.GEMINI_API_KEY
+      });
+      return NextResponse.json({ error: "Server configuration error: API Key missing" }, { status: 500 });
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
     const body = await req.json();
     const { mode, targetPlatform, source } = body as {
       mode: "css" | "description" | "image";
@@ -17,10 +25,6 @@ export async function POST(req: NextRequest) {
 
     if (!source) {
       return NextResponse.json({ error: "Source is required" }, { status: 400 });
-    }
-
-    if (!apiKey) {
-      return NextResponse.json({ error: "GOOGLE_API_KEY or GEMINI_API_KEY is not set" }, { status: 500 });
     }
 
     // 2. Canonicalise into StyleSystem using LLM
@@ -86,8 +90,11 @@ export async function POST(req: NextRequest) {
 
     let result;
     if (mode === "image") {
+      if (!source.includes(",")) {
+        throw new Error("Invalid image data format");
+      }
       const base64Data = source.split(",")[1];
-      const mimeType = source.split(";")[0].split(":")[1];
+      const mimeType = source.split(";")[0].split(":")[1] || "image/jpeg";
 
       result = await model.generateContent([
         systemPrompt,
@@ -121,7 +128,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ styleSystem, stylePrompt });
 
   } catch (error: any) {
-    console.error("Analysis error:", error);
+    console.error("Analysis error details:", {
+      message: error.message,
+      stack: error.stack,
+      cause: error.cause
+    });
     return NextResponse.json(
       { error: error.message || "Internal server error" },
       { status: 500 }
