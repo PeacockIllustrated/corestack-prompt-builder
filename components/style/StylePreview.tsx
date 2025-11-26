@@ -31,8 +31,8 @@ export function StylePreview({ system, originalImage }: StylePreviewProps) {
                         key={tab}
                         onClick={() => setActiveTab(tab)}
                         className={`px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${activeTab === tab
-                                ? "bg-green-600 text-black"
-                                : "text-green-600 hover:bg-green-900/30"
+                            ? "bg-green-600 text-black"
+                            : "text-green-600 hover:bg-green-900/30"
                             }`}
                     >
                         [{tab.toUpperCase()}]
@@ -145,12 +145,35 @@ export function StylePreview({ system, originalImage }: StylePreviewProps) {
 // --- Sub-component for individual component cards ---
 
 function ComponentCard({ name, system, detected }: { name: string, system: StyleSystem, detected?: any }) {
-    const [showAuto, setShowAuto] = useState(!detected);
+    const [generatedCode, setGeneratedCode] = useState<string | null>(null);
+    const [isGenerating, setIsGenerating] = useState(false);
     const { colors, radius, spacingScale } = system;
     const getSpacing = (index: number) => `${spacingScale[index] || 8}px`;
 
+    const handleGenerate = async () => {
+        setIsGenerating(true);
+        try {
+            const res = await fetch("/api/style/generate-component", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ styleSystem: system, componentName: name }),
+            });
+            const data = await res.json();
+            if (data.code) {
+                setGeneratedCode(data.code);
+            } else {
+                alert("Failed to generate component code");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Error generating component");
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
     return (
-        <div className="border border-green-900/50 rounded-lg overflow-hidden bg-black/20 flex flex-col">
+        <div className="border border-green-900/50 rounded-lg overflow-hidden bg-black/20 flex flex-col group hover:border-green-500/50 transition-colors">
             <div className="bg-green-900/10 p-3 border-b border-green-900/30 flex justify-between items-center">
                 <span className="font-bold text-sm text-green-400">{name}</span>
                 <div className="flex items-center gap-2">
@@ -162,122 +185,75 @@ function ComponentCard({ name, system, detected }: { name: string, system: Style
                 </div>
             </div>
 
-            <div className="p-6 flex-1 flex flex-col items-center justify-center min-h-[140px] relative bg-[url('/grid.svg')] bg-center">
+            <div className="p-6 flex-1 flex flex-col items-center justify-center min-h-[160px] relative bg-[url('/grid.svg')] bg-center">
                 {/* Background for contrast */}
                 <div
                     className="absolute inset-0 opacity-10"
                     style={{ backgroundColor: colors.background }}
                 />
 
-                <div className="relative z-10 w-full flex justify-center">
+                <div className="relative z-10 w-full flex flex-col items-center justify-center gap-4">
+
                     {/* RENDER LOGIC */}
-                    {name === "Button" && (
-                        <button style={{
-                            backgroundColor: colors.primary,
-                            color: colors.background, // simplistic contrast assumption
-                            padding: `${getSpacing(2)} ${getSpacing(4)}`,
-                            borderRadius: radius?.button || "4px",
-                            fontWeight: 600,
-                            border: "none"
-                        }}>
-                            {detected ? "Detected Button" : "Auto-Generated"}
-                        </button>
-                    )}
-
-                    {name === "Card" && (
-                        <div style={{
-                            backgroundColor: colors.surface || "#222",
-                            padding: getSpacing(4),
-                            borderRadius: radius?.card || "8px",
-                            border: `1px solid ${colors.border || "transparent"}`,
-                            boxShadow: system.shadows?.card || "none",
-                            width: "80%"
-                        }}>
-                            <div style={{ height: "10px", width: "40%", backgroundColor: colors.text, opacity: 0.2, marginBottom: "8px", borderRadius: "2px" }} />
-                            <div style={{ height: "8px", width: "80%", backgroundColor: colors.text, opacity: 0.1, borderRadius: "2px" }} />
-                        </div>
-                    )}
-
-                    {name === "Input" && (
-                        <input
-                            type="text"
-                            placeholder="Type here..."
-                            disabled
-                            style={{
-                                backgroundColor: colors.surface || "transparent",
-                                border: `1px solid ${colors.border || "#444"}`,
-                                borderRadius: radius?.input || "4px",
-                                padding: getSpacing(2),
-                                color: colors.text,
-                                width: "80%"
-                            }}
-                        />
-                    )}
-
-                    {name === "Navbar" && (
-                        <div style={{
-                            width: "100%",
-                            height: "40px",
-                            backgroundColor: colors.surface || "#111",
-                            borderBottom: `1px solid ${colors.border || "#333"}`,
-                            display: "flex",
-                            alignItems: "center",
-                            padding: `0 ${getSpacing(2)}`,
-                            gap: getSpacing(2)
-                        }}>
-                            <div style={{ width: "20px", height: "20px", backgroundColor: colors.primary, borderRadius: "50%" }} />
-                            <div style={{ width: "60px", height: "8px", backgroundColor: colors.text, opacity: 0.3, borderRadius: "2px" }} />
-                        </div>
-                    )}
-
-                    {name === "Modal" && (
-                        <div style={{
-                            backgroundColor: colors.surface || "#222",
-                            padding: getSpacing(4),
-                            borderRadius: radius?.card || "8px",
-                            border: `1px solid ${colors.border || "transparent"}`,
-                            boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
-                            width: "70%",
-                            textAlign: "center"
-                        }}>
-                            <h4 style={{ color: colors.text, marginBottom: getSpacing(2), fontSize: "0.9rem" }}>Confirm Action</h4>
-                            <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
-                                <div style={{ width: "40%", height: "24px", backgroundColor: colors.primary, borderRadius: radius?.button || "4px", opacity: 0.8 }} />
-                                <div style={{ width: "40%", height: "24px", backgroundColor: "transparent", border: `1px solid ${colors.border}`, borderRadius: radius?.button || "4px" }} />
+                    {generatedCode ? (
+                        <div className="w-full">
+                            <div
+                                className="w-full flex justify-center items-center p-4 border border-dashed border-green-900/30 rounded bg-black/20"
+                                dangerouslySetInnerHTML={{ __html: generatedCode }}
+                            />
+                            <div className="flex justify-end mt-2 gap-2">
+                                <Button
+                                    variant="secondary"
+                                    className="h-6 text-[10px]"
+                                    onClick={() => navigator.clipboard.writeText(generatedCode)}
+                                >
+                                    COPY HTML
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    className="h-6 text-[10px] text-green-600 hover:text-green-400"
+                                    onClick={handleGenerate}
+                                >
+                                    REGENERATE
+                                </Button>
                             </div>
                         </div>
-                    )}
+                    ) : isGenerating ? (
+                        <div className="flex flex-col items-center gap-2 text-green-500 animate-pulse">
+                            <div className="w-6 h-6 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
+                            <span className="text-xs font-mono">[ GENERATING... ]</span>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center gap-3">
+                            {/* Static Preview Placeholder (Simplified) */}
+                            <div className="opacity-50 scale-90 pointer-events-none grayscale group-hover:grayscale-0 transition-all duration-500">
+                                {name === "Button" && <button className="px-4 py-2 bg-green-600 text-black rounded font-bold">Button</button>}
+                                {name === "Card" && <div className="w-24 h-16 bg-zinc-800 rounded border border-zinc-700 shadow-lg" />}
+                                {name === "Input" && <div className="w-32 h-8 bg-black border border-zinc-700 rounded" />}
+                                {name === "Navbar" && <div className="w-32 h-8 bg-zinc-900 border-b border-zinc-800 flex items-center px-2 gap-2"><div className="w-4 h-4 rounded-full bg-green-600" /></div>}
+                                {name === "Modal" && <div className="w-24 h-20 bg-zinc-800 border border-zinc-700 rounded shadow-xl" />}
+                                {name === "Alert" && <div className="w-32 h-8 bg-green-900/20 border-l-2 border-green-500 rounded" />}
+                            </div>
 
-                    {name === "Alert" && (
-                        <div style={{
-                            backgroundColor: colors.primarySoft || colors.surface,
-                            borderLeft: `4px solid ${colors.primary}`,
-                            padding: getSpacing(3),
-                            borderRadius: radius?.card || "4px",
-                            width: "90%",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: getSpacing(2)
-                        }}>
-                            <div style={{ width: "16px", height: "16px", backgroundColor: colors.primary, borderRadius: "50%" }} />
-                            <div style={{ height: "6px", width: "70%", backgroundColor: colors.text, opacity: 0.4, borderRadius: "2px" }} />
+                            <Button onClick={handleGenerate} className="shadow-lg shadow-green-900/20">
+                                [ GENERATE COMPONENT ]
+                            </Button>
                         </div>
                     )}
 
                 </div>
             </div>
 
-            {/* Description / Toggle */}
+            {/* Description */}
             <div className="p-3 bg-black/40 border-t border-green-900/30 text-[10px] text-green-600/70 font-mono">
                 {detected ? (
                     <div>
                         <p className="mb-1 text-green-400">"{detected.description}"</p>
-                        <p>Variants: {detected.variants?.join(", ")}</p>
                     </div>
                 ) : (
                     <div className="flex justify-between items-center">
                         <span>Not found in source.</span>
-                        <span className="text-green-500">Auto-Generated Preview</span>
+                        <span className="text-green-500">AI Will Improvise</span>
                     </div>
                 )}
             </div>
