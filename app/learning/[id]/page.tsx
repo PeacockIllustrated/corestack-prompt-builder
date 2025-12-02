@@ -222,10 +222,10 @@ export default function TopicDetailPage() {
                         ) : (
                             <TerminalCard title="STATUS_LOG" className="h-full">
                                 <div className="font-mono text-sm text-green-700">
-                                    <div>> COURSE_GENERATION_COMPLETE</div>
-                                    <div>> MODULES_LINKED: OK</div>
-                                    <div>> ASSETS_VERIFIED: OK</div>
-                                    <div>> SYSTEM_READY</div>
+                                    <div>{">"} COURSE_GENERATION_COMPLETE</div>
+                                    <div>{">"} MODULES_LINKED: OK</div>
+                                    <div>{">"} ASSETS_VERIFIED: OK</div>
+                                    <div>{">"} SYSTEM_READY</div>
                                 </div>
                             </TerminalCard>
                         )}
