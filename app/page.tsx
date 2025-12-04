@@ -21,7 +21,24 @@ export default function WelcomePage() {
       setLoading(false);
     };
     checkUser();
-  }, []);
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        setUser(session?.user ?? null);
+        setLoading(false);
+        if (session?.user) {
+          router.push("/dashboard");
+        }
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setLoading(false);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [supabase, router]);
 
   useEffect(() => {
     const interval = setInterval(() => {
