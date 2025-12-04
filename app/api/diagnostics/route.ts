@@ -6,7 +6,7 @@ export async function GET() {
     const geminiKey = process.env.GEMINI_API_KEY;
     const activeKey = googleKey || geminiKey;
 
-    const status: any = {
+    const status: Record<string, unknown> = {
         env: {
             GOOGLE_API_KEY_PRESENT: !!googleKey,
             GEMINI_API_KEY_PRESENT: !!geminiKey,
@@ -26,7 +26,7 @@ export async function GET() {
 
         // Test multiple models to find a working one
         const modelsToTry = ["gemini-1.5-pro", "gemini-1.5-flash", "gemini-2.0-flash-exp"];
-        const results: any = {};
+        const results: Record<string, string> = {};
         let success = false;
 
         for (const modelName of modelsToTry) {
@@ -37,8 +37,8 @@ export async function GET() {
                 const text = response.text();
                 results[modelName] = text ? "success" : "empty_response";
                 if (text) success = true;
-            } catch (e: any) {
-                results[modelName] = `failed: ${e.message}`;
+            } catch (e: unknown) {
+                results[modelName] = `failed: ${e instanceof Error ? e.message : String(e)}`;
             }
         }
 
@@ -51,9 +51,9 @@ export async function GET() {
             status.error = "All models failed. Check API key permissions and quota.";
         }
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         status.modelCheck = "failed";
-        status.error = error.message || "Unknown error during model generation";
+        status.error = error instanceof Error ? error.message : "Unknown error during model generation";
         console.error("Diagnostics Error:", error);
     }
 

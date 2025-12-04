@@ -169,7 +169,7 @@ export const EntityTree: React.FC<EntityTreeProps> = ({
 
             <div className="border border-green-800 bg-black p-2 min-h-[150px] max-h-[300px] overflow-y-auto custom-scrollbar">
                 {value.length === 0 ? (
-                    <div className="text-green-900 text-sm italic p-2">// No entities yet. Add one below.</div>
+                    <div className="text-green-900 text-sm italic p-2">{"//"} No entities yet. Add one below.</div>
                 ) : (
                     renderTree(value)
                 )}

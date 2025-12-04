@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
         const { styleSystem, componentName, componentContext, userInstruction } = body as {
             styleSystem: StyleSystem;
             componentName: string;
-            componentContext?: any; // StyleComponent
+            componentContext?: unknown; // StyleComponent
             userInstruction?: string;
         };
 
@@ -32,9 +32,9 @@ export async function POST(req: NextRequest) {
         if (componentContext) {
             contextPrompt = `
             CONTEXT FROM IMAGE ANALYSIS (CRITICAL - FOLLOW THIS):
-            - Description: ${componentContext.description}
-            - Variants Observed: ${componentContext.variants?.join(", ") || "None"}
-            - Usage Notes: ${componentContext.usage || "None"}
+            - Description: ${(componentContext as { description?: string })?.description || "None"}
+            - Variants Observed: ${(componentContext as { variants?: string[] })?.variants?.join(", ") || "None"}
+            - Usage Notes: ${(componentContext as { usage?: string })?.usage || "None"}
             
             You MUST prioritize the visual description above over generic conventions.
             `;
@@ -97,10 +97,10 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({ code: data.code });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Component generation error:", error);
         return NextResponse.json(
-            { error: error.message || "Failed to generate component" },
+            { error: error instanceof Error ? error.message : "Failed to generate component" },
             { status: 500 }
         );
     }

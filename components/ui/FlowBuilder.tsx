@@ -97,7 +97,7 @@ export const FlowBuilder: React.FC<FlowBuilderProps> = ({
                     {/* Visual Chain Preview */}
                     <div className="flex flex-wrap items-center gap-2 mb-4 min-h-[40px]">
                         {activeFlowSteps.length === 0 && (
-                            <span className="text-green-900 text-sm italic">// Add steps below...</span>
+                            <span className="text-green-900 text-sm italic">{"//"} Add steps below...</span>
                         )}
                         {activeFlowSteps.map((step, i) => (
                             <React.Fragment key={i}>

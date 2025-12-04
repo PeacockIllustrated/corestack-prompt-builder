@@ -1,0 +1,110 @@
+
+> corestack-prompt-builder@0.1.0 lint
+> eslint
+
+
+C:\Users\peaco\OneDrive\Desktop\antigravity\corestack-prompt-builder\app\api\diagnostics\route.ts
+   9:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  29:24  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  40:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  54:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\peaco\OneDrive\Desktop\antigravity\corestack-prompt-builder\app\api\generate\route.ts
+  59:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\peaco\OneDrive\Desktop\antigravity\corestack-prompt-builder\app\api\style\analyse\route.ts
+  124:28  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  153:14  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  166:19  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\peaco\OneDrive\Desktop\antigravity\corestack-prompt-builder\app\api\style\generate-component\route.ts
+   18:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  100:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\peaco\OneDrive\Desktop\antigravity\corestack-prompt-builder\app\dashboard\page.tsx
+  10:10  warning  'TerminalCard' is defined but never used                                                                          @typescript-eslint/no-unused-vars
+  12:31  warning  'Plus' is defined but never used                                                                                  @typescript-eslint/no-unused-vars
+  37:8   warning  React Hook useEffect has a missing dependency: 'supabase.auth'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\peaco\OneDrive\Desktop\antigravity\corestack-prompt-builder\app\editor\[id]\page.tsx
+  28:12  warning  'projectName' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\peaco\OneDrive\Desktop\antigravity\corestack-prompt-builder\app\learning\[id]\page.tsx
+  31:11  warning  'router' is assigned a value but never used                                                                   @typescript-eslint/no-unused-vars
+  42:8   warning  React Hook useEffect has a missing dependency: 'fetchData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\peaco\OneDrive\Desktop\antigravity\corestack-prompt-builder\app\learning\course\[id]\page.tsx
+   7:10  warning  'TerminalBadge' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+  39:11  warning  'router' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+  96:9   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\peaco\OneDrive\Desktop\antigravity\corestack-prompt-builder\app\learning\course\[id]\page.tsx:96:9
+  94 |
+  95 |     useEffect(() => {
+> 96 |         fetchCourseData();
+     |         ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  97 |     }, [id]);
+  98 |
+  99 |     const toggleModule = (moduleId: string) => {  react-hooks/set-state-in-effect
+  97:8   warning  React Hook useEffect has a missing dependency: 'fetchCourseData'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          react-hooks/exhaustive-deps
+
+C:\Users\peaco\OneDrive\Desktop\antigravity\corestack-prompt-builder\app\learning\page.tsx
+   9:8  warning  'Link' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+  44:9  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\peaco\OneDrive\Desktop\antigravity\corestack-prompt-builder\app\learning\page.tsx:44:9
+  42 |
+  43 |     useEffect(() => {
+> 44 |         fetchTopics();
+     |         ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  45 |     }, []);
+  46 |
+  47 |     const handleCreateTopic = async (e: React.FormEvent) => {  react-hooks/set-state-in-effect
+  45:8  warning  React Hook useEffect has a missing dependency: 'fetchTopics'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     react-hooks/exhaustive-deps
+
+C:\Users\peaco\OneDrive\Desktop\antigravity\corestack-prompt-builder\app\page.tsx
+  12:10  warning  'showCursor' is assigned a value but never used                                                                   @typescript-eslint/no-unused-vars
+  24:6   warning  React Hook useEffect has a missing dependency: 'supabase.auth'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\peaco\OneDrive\Desktop\antigravity\corestack-prompt-builder\components\style\StylePreview.tsx
+   16:33   warning  'radius' is assigned a value but never used                                                                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+   19:11   warning  'getSpacing' is assigned a value but never used                                                                                                                                                                                                                                          @typescript-eslint/no-unused-vars
+  127:29   warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  147:100  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  150:21   warning  'radius' is assigned a value but never used                                                                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+  151:11   warning  'getSpacing' is assigned a value but never used                                                                                                                                                                                                                                          @typescript-eslint/no-unused-vars
+  267:60   error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                          react/no-unescaped-entities
+  267:83   error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                          react/no-unescaped-entities
+
+C:\Users\peaco\OneDrive\Desktop\antigravity\corestack-prompt-builder\components\ui\Card.tsx
+  3:11  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+C:\Users\peaco\OneDrive\Desktop\antigravity\corestack-prompt-builder\components\ui\DesignSystemBuilder.tsx
+  116:56  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\peaco\OneDrive\Desktop\antigravity\corestack-prompt-builder\components\ui\Input.tsx
+  3:11  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+C:\Users\peaco\OneDrive\Desktop\antigravity\corestack-prompt-builder\components\ui\Label.tsx
+  3:11  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+C:\Users\peaco\OneDrive\Desktop\antigravity\corestack-prompt-builder\components\ui\Textarea.tsx
+  3:11  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+C:\Users\peaco\OneDrive\Desktop\antigravity\corestack-prompt-builder\test-gemini.mjs
+  1:10  warning  'GoogleGenerativeAI' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 39 problems (19 errors, 20 warnings)
+

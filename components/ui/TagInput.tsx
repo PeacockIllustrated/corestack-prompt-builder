@@ -62,7 +62,7 @@ export const TagInput: React.FC<TagInputProps> = ({
                 />
             </div>
             <p className="text-[10px] text-green-800 uppercase tracking-wider">
-        // Press ENTER or COMMA to add tag
+                {"//"} Press ENTER or COMMA to add tag
             </p>
         </div>
     );

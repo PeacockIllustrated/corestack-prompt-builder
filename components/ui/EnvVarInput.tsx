@@ -56,7 +56,7 @@ export const EnvVarInput: React.FC<EnvVarInputProps> = ({
             <div className="border border-green-800 bg-black p-2 min-h-[100px] max-h-[200px] overflow-y-auto custom-scrollbar">
                 {value.length === 0 ? (
                     <div className="text-green-900 text-sm italic p-2">
-            // No environment variables yet. Add one below.
+                        {"//"} No environment variables yet. Add one below.
                     </div>
                 ) : (
                     <div className="space-y-2">

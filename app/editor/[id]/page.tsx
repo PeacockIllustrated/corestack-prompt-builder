@@ -196,7 +196,7 @@ export default function EditorPage() {
                             &gt; CoreStack Editor_
                         </h1>
                         <p className="text-green-700 mt-2 text-sm md:text-base font-mono">
-              // Editing: {id.slice(0, 8)}... [{projectType}]
+                            {"//"} Editing: {id.slice(0, 8)}... [{projectType}]
                         </p>
                     </div>
                     <Button variant="secondary" onClick={() => router.push("/dashboard")}>
@@ -265,7 +265,7 @@ export default function EditorPage() {
                                     <div>
                                         <Label>Entities (Data Model)</Label>
                                         <p className="text-xs text-green-700 mb-2">
-                      // Define your database schema hierarchy
+                                            {"//"} Define your database schema hierarchy
                                         </p>
                                         <EntityTree
                                             label="Entities (Data Model)"
@@ -277,7 +277,7 @@ export default function EditorPage() {
                                     <div>
                                         <Label>Core Flows</Label>
                                         <p className="text-xs text-green-700 mb-2">
-                      // Define key user journeys (Step 1 -&gt; Step 2)
+                                            {"//"} Define key user journeys (Step 1 -&gt; Step 2)
                                         </p>
                                         <FlowBuilder
                                             label="Core Flows"
@@ -289,7 +289,7 @@ export default function EditorPage() {
                                     <div>
                                         <Label>Relationships</Label>
                                         <p className="text-xs text-green-700 mb-2">
-                      // Define connections (e.g. "User has many Photos")
+                                            {"//"} Define connections (e.g. &quot;User has many Photos&quot;)
                                         </p>
                                         <ListInput
                                             label="Relationships"
@@ -321,7 +321,7 @@ export default function EditorPage() {
                                     {/* Design System Sub-section */}
                                     <div className="border border-green-800 bg-black/50 p-4">
                                         <Label className="text-green-500 mb-4 block border-b border-green-900 pb-1 w-max">
-                      // DESIGN SYSTEM
+                                            {"//"} DESIGN SYSTEM
                                         </Label>
                                         <DesignSystemBuilder
                                             value={formData.designSystem!}
@@ -332,7 +332,7 @@ export default function EditorPage() {
                                     {/* Deployment Config Sub-section */}
                                     <div className="border border-green-800 bg-black/50 p-4">
                                         <Label className="text-green-500 mb-4 block border-b border-green-900 pb-1 w-max">
-                      // DEPLOYMENT SETTINGS
+                                            {"//"} DEPLOYMENT SETTINGS
                                         </Label>
                                         <div className="space-y-6">
                                             <div>
@@ -382,7 +382,7 @@ export default function EditorPage() {
                                                         Backend Configuration Code (Optional)
                                                     </Label>
                                                     <p className="text-xs text-green-700 mb-2">
-                            // Paste your Firebase/Supabase config object
+                                                        {"//"} Paste your Firebase/Supabase config object
                                                     </p>
                                                     <Textarea
                                                         id="backendConfigCode"

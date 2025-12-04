@@ -121,8 +121,8 @@ export async function POST(req: NextRequest) {
       } else {
         result = await model.generateContent(systemPrompt);
       }
-    } catch (primaryError: any) {
-      console.warn("Primary model (gemini-2.0-flash-exp) failed, attempting fallback to gemini-1.5-pro. Error:", primaryError.message);
+    } catch (primaryError: unknown) {
+      console.warn("Primary model (gemini-2.0-flash-exp) failed, attempting fallback to gemini-1.5-pro. Error:", primaryError instanceof Error ? primaryError.message : String(primaryError));
 
       // Fallback to gemini-1.5-pro
       const fallbackModel = genAI.getGenerativeModel({
@@ -163,11 +163,11 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ styleSystem, stylePrompt });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Analysis error details:", {
-      message: error.message,
-      stack: error.stack,
-      cause: error.cause
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      cause: error instanceof Error ? error.cause : undefined
     });
 
     // Return detailed diagnostic info for the user
@@ -175,8 +175,8 @@ export async function POST(req: NextRequest) {
       {
         error: "Analysis Failed",
         debug: {
-          message: error.message,
-          stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+          message: error instanceof Error ? error.message : String(error),
+          stack: process.env.NODE_ENV === "development" && error instanceof Error ? error.stack : undefined,
           env: {
             GOOGLE_KEY_SET: !!process.env.GOOGLE_API_KEY,
             GEMINI_KEY_SET: !!process.env.GEMINI_API_KEY,

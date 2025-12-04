@@ -45,10 +45,6 @@ export default function CourseViewPage() {
     const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
     const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
 
-    useEffect(() => {
-        fetchCourseData();
-    }, [id]);
-
     const fetchCourseData = async () => {
         setLoading(true);
 
@@ -95,6 +91,11 @@ export default function CourseViewPage() {
         }
         setLoading(false);
     };
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        fetchCourseData();
+    }, [id]);
 
     const toggleModule = (moduleId: string) => {
         const newExpanded = new Set(expandedModules);

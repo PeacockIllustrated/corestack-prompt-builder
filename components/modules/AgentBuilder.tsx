@@ -19,7 +19,7 @@ interface AgentBuilderProps {
 }
 
 export const AgentBuilder: React.FC<AgentBuilderProps> = ({ data, onChange }) => {
-    const handleChange = (field: keyof AgentData, value: any) => {
+    const handleChange = (field: keyof AgentData, value: string | string[]) => {
         onChange({ ...data, [field]: value });
     };
 
@@ -38,7 +38,7 @@ export const AgentBuilder: React.FC<AgentBuilderProps> = ({ data, onChange }) =>
             <div>
                 <Label htmlFor="agentPersona">Agent Persona</Label>
                 <p className="text-xs text-green-700 mb-2">
-          // Define the role, tone, and expertise
+                    {"//"} Define the role, tone, and expertise
                 </p>
                 <Textarea
                     id="agentPersona"
@@ -52,7 +52,7 @@ export const AgentBuilder: React.FC<AgentBuilderProps> = ({ data, onChange }) =>
             <div>
                 <Label>Triggers</Label>
                 <p className="text-xs text-green-700 mb-2">
-          // What events start this agent?
+                    {"//"} What events start this agent?
                 </p>
                 <ListInput
                     label="Triggers"
@@ -65,7 +65,7 @@ export const AgentBuilder: React.FC<AgentBuilderProps> = ({ data, onChange }) =>
             <div>
                 <Label>Tools & Capabilities</Label>
                 <p className="text-xs text-green-700 mb-2">
-          // What actions can it perform?
+                    {"//"} What actions can it perform?
                 </p>
                 <ListInput
                     label="Tools"
@@ -78,7 +78,7 @@ export const AgentBuilder: React.FC<AgentBuilderProps> = ({ data, onChange }) =>
             <div>
                 <Label>Constraints & Safety</Label>
                 <p className="text-xs text-green-700 mb-2">
-          // Strict rules and boundaries
+                    {"//"} Strict rules and boundaries
                 </p>
                 <ListInput
                     label="Constraints"
@@ -91,7 +91,7 @@ export const AgentBuilder: React.FC<AgentBuilderProps> = ({ data, onChange }) =>
             <div>
                 <Label htmlFor="outputFormat">Output Format / Schema</Label>
                 <p className="text-xs text-green-700 mb-2">
-          // Define the expected JSON/XML output
+                    {"//"} Define the expected JSON/XML output
                 </p>
                 <Textarea
                     id="outputFormat"

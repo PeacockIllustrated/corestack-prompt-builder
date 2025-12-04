@@ -56,10 +56,10 @@ export async function POST(req: Request) {
         const data = JSON.parse(cleanText);
 
         return NextResponse.json(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("AI Generation Error:", error);
         return NextResponse.json(
-            { error: error.message || "Failed to generate content" },
+            { error: error instanceof Error ? error.message : "Failed to generate content" },
             { status: 500 }
         );
     }

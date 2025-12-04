@@ -3,19 +3,38 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { storage, ProjectMetadata, ProjectType } from "@/lib/storage";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { createClient } from "@/lib/supabase/client";
+import { User } from "@supabase/supabase-js";
+import { TerminalButton } from "@/components/learning/TerminalButton";
+import { ModuleCard } from "@/components/dashboard/ModuleCard";
+import { TerminalCard } from "@/components/learning/TerminalCard";
+import { TerminalBadge } from "@/components/learning/TerminalBadge";
+import { Code, Brain, LogOut, Plus, Trash2 } from "lucide-react";
 
 export default function DashboardPage() {
     const router = useRouter();
     const [projects, setProjects] = useState<ProjectMetadata[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [user, setUser] = useState<User | null>(null);
+    const supabase = createClient();
 
     useEffect(() => {
-        const loadedProjects = storage.getAllProjects();
-        setProjects(Array.isArray(loadedProjects) ? loadedProjects : []);
-        setIsLoading(false);
-    }, []);
+        const init = async () => {
+            // Check Auth
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                router.push("/");
+                return;
+            }
+            setUser(user);
+
+            // Load Local Projects
+            const loadedProjects = storage.getAllProjects();
+            setProjects(Array.isArray(loadedProjects) ? loadedProjects : []);
+            setIsLoading(false);
+        };
+        init();
+    }, [router]);
 
     const handleCreateProject = (type: ProjectType) => {
         const id = storage.createProject(type);
@@ -23,6 +42,7 @@ export default function DashboardPage() {
     };
 
     const handleDelete = (e: React.MouseEvent, id: string) => {
+        e.preventDefault();
         e.stopPropagation();
         if (confirm("Are you sure you want to delete this project?")) {
             storage.deleteProject(id);
@@ -30,104 +50,132 @@ export default function DashboardPage() {
         }
     };
 
+    const handleSignOut = async () => {
+        await supabase.auth.signOut();
+        router.push("/");
+    };
+
     const formatDate = (timestamp: number) => {
         return new Date(timestamp).toLocaleString("en-US", {
             month: "short",
             day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
         });
     };
 
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center text-green-500 font-mono">
+                <div className="animate-pulse">[ LOADING_DASHBOARD_MODULES... ]</div>
+            </div>
+        );
+    }
+
     return (
-        <main className="min-h-screen p-4 md:p-8 flex flex-col items-center">
-            <div className="max-w-4xl w-full space-y-8">
+        <main className="min-h-screen p-4 md:p-8 bg-black text-green-500 font-mono">
+            <div className="max-w-6xl mx-auto space-y-8">
                 {/* Header */}
-                <header className="border-b border-green-800 pb-6 flex justify-between items-end">
+                <header className="border-b border-green-900 pb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                     <div>
                         <h1 className="text-3xl md:text-4xl font-bold tracking-tight uppercase text-glow">
-                            &gt; SYSTEM DASHBOARD_
+                            CORESTACK // HUB
                         </h1>
-                        <p className="text-green-700 mt-2 text-sm md:text-base font-mono">
-              // Select a project to load or initialize new sequence
+                        <p className="text-green-700 mt-2 text-sm">
+                            USER: {user?.email} {"//"} ACCESS_LEVEL: ADMIN
                         </p>
                     </div>
-                    <div className="text-right hidden md:block">
-                        <div className="text-xs text-green-800">SYSTEM STATUS</div>
-                        <div className="text-green-500 font-bold">ONLINE</div>
-                    </div>
+                    <TerminalButton variant="ghost" onClick={handleSignOut} className="text-xs">
+                        <LogOut className="w-4 h-4 mr-2" /> DISCONNECT
+                    </TerminalButton>
                 </header>
 
-                {/* Actions */}
-                <div className="flex gap-4 flex-wrap md:flex-nowrap">
-                    <Button onClick={() => handleCreateProject("WEB_APP")} className="flex-1 md:flex-none">
-                        [ + NEW_WEB_APP ]
-                    </Button>
-                    <Button onClick={() => handleCreateProject("AGENT")} className="flex-1 md:flex-none" variant="secondary">
-                        [ + NEW_AGENT ]
-                    </Button>
-                    <Button onClick={() => router.push("/style-extractor")} className="flex-1 md:flex-none border-green-600 text-green-400 hover:bg-green-900/20">
-                        [ &gt; STYLE_EXTRACTOR ]
-                    </Button>
-                </div>
+                {/* Main Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                {/* Project List */}
-                <Card className="min-h-[400px] p-0 overflow-hidden flex flex-col">
-                    <div className="grid grid-cols-12 gap-4 p-4 border-b border-green-800 bg-green-900/20 text-xs font-bold text-green-400 uppercase tracking-wider">
-                        <div className="col-span-6 md:col-span-4">Project Name</div>
-                        <div className="col-span-3 md:col-span-2">Type</div>
-                        <div className="hidden md:block md:col-span-3">Last Modified</div>
-                        <div className="col-span-3 md:col-span-3 text-right">
-                            <span className="md:hidden">Action</span>
-                            <span className="hidden md:inline">ID</span>
-                        </div>
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto">
-                        {projects.length === 0 ? (
-                            <div className="h-full flex flex-col items-center justify-center text-green-800 space-y-4 opacity-50">
-                                <div className="text-4xl">[-_-]</div>
-                                <div>NO_PROJECTS_FOUND</div>
+                    {/* Column 1: Projects (Prompt Builder) */}
+                    <div className="lg:col-span-2 space-y-6">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-xl font-bold text-green-400 flex items-center gap-2">
+                                <Code className="w-5 h-5" /> ACTIVE_PROJECTS
+                            </h2>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => handleCreateProject("WEB_APP")}
+                                    className="text-xs border border-green-700 px-2 py-1 hover:bg-green-900/30 transition-colors"
+                                >
+                                    [+ WEB]
+                                </button>
+                                <button
+                                    onClick={() => handleCreateProject("AGENT")}
+                                    className="text-xs border border-green-700 px-2 py-1 hover:bg-green-900/30 transition-colors"
+                                >
+                                    [+ BOT]
+                                </button>
                             </div>
-                        ) : (
-                            <div className="divide-y divide-green-900/30">
-                                {projects.map((project) => (
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {projects.length === 0 ? (
+                                <div className="col-span-full border border-dashed border-green-900 p-8 text-center text-green-800">
+                                    NO_ACTIVE_PROJECTS
+                                </div>
+                            ) : (
+                                projects.map((project) => (
                                     <div
                                         key={project.id}
                                         onClick={() => router.push(`/editor/${project.id}`)}
-                                        className="grid grid-cols-12 gap-4 p-4 hover:bg-green-900/10 cursor-pointer group transition-colors items-center"
+                                        className="group relative border border-green-900 bg-black p-4 cursor-pointer hover:border-green-500 transition-colors"
                                     >
-                                        <div className="col-span-6 md:col-span-4 font-bold text-green-300 truncate">
-                                            {project.name || "Untitled Project"}
+                                        <div className="flex justify-between items-start mb-2">
+                                            <div className="font-bold text-green-300 truncate pr-4">{project.name}</div>
+                                            <TerminalBadge variant={project.type === "WEB_APP" ? "info" : "warning"}>
+                                                {project.type === "WEB_APP" ? "WEB" : "BOT"}
+                                            </TerminalBadge>
                                         </div>
-                                        <div className="col-span-3 md:col-span-2 text-xs">
-                                            <span className={`inline-block px-2 py-0.5 border ${project.type === "WEB_APP" ? "border-green-600 text-green-400" : "border-blue-600 text-blue-400"
-                                                }`}>
-                                                <span className="md:hidden">{project.type === "WEB_APP" ? "WEB" : "BOT"}</span>
-                                                <span className="hidden md:inline">{project.type}</span>
-                                            </span>
+                                        <div className="text-xs text-green-700 mb-4">
+                                            LAST_MOD: {formatDate(project.lastModified)}
                                         </div>
-                                        <div className="hidden md:block md:col-span-3 text-xs text-green-600 font-mono">
-                                            {formatDate(project.lastModified)}
-                                        </div>
-                                        <div className="col-span-3 md:col-span-3 flex justify-end items-center gap-4">
-                                            <span className="text-xs text-green-900 font-mono hidden md:inline">
-                                                {project.id.slice(0, 8)}...
-                                            </span>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-xs opacity-0 group-hover:opacity-100 transition-opacity">[ OPEN ]</span>
                                             <button
                                                 onClick={(e) => handleDelete(e, project.id)}
-                                                className="text-red-900 hover:text-red-500 font-bold text-xs px-2 py-1 border border-transparent hover:border-red-900 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+                                                className="text-red-900 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                                             >
-                                                <span className="md:hidden">[ X ]</span>
-                                                <span className="hidden md:inline">[ DELETE ]</span>
+                                                <Trash2 className="w-4 h-4" />
                                             </button>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-                        )}
+                                ))
+                            )}
+                        </div>
                     </div>
-                </Card>
+
+                    {/* Column 2: Modules & Learning */}
+                    <div className="space-y-6">
+                        <h2 className="text-xl font-bold text-green-400 flex items-center gap-2">
+                            <Brain className="w-5 h-5" /> MODULES
+                        </h2>
+
+                        <div className="grid gap-4">
+                            <ModuleCard
+                                title="TOM'S_BRAIN"
+                                description="AI-powered learning curriculum generator."
+                                href="/learning"
+                                icon={<Brain className="w-6 h-6" />}
+                                stats={[
+                                    { label: "STATUS", value: "ONLINE" },
+                                    { label: "VERSION", value: "2.0.4" }
+                                ]}
+                            />
+
+                            <ModuleCard
+                                title="STYLE_EXTRACTOR"
+                                description="Analyze and extract design tokens from images."
+                                href="/style-extractor"
+                                icon={<Code className="w-6 h-6" />}
+                            />
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
     );

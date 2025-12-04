@@ -103,12 +103,12 @@ export default function StyleExtractorPage() {
 
             const data = await res.json();
             setResult(data);
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Analysis Error:", error);
 
             // Try to parse the error response if available
             let errorMessage = "Failed to analyze style. Please try again.";
-            if (error.message) errorMessage = error.message;
+            if (error instanceof Error) errorMessage = error.message;
 
             // If we have a debug object from the API (we need to catch this from the fetch response)
             // Ideally, we should handle the non-ok response better above.
@@ -136,7 +136,7 @@ export default function StyleExtractorPage() {
                             &gt; STYLE_EXTRACTOR_
                         </h1>
                         <p className="text-green-700 mt-2 text-sm md:text-base font-mono">
-              // Turn CSS/Descriptions/Images into strict design systems
+                            {"//"} Turn CSS/Descriptions/Images into strict design systems
                         </p>
                     </div>
                     <Button variant="secondary" onClick={() => router.push("/dashboard")}>
@@ -305,7 +305,7 @@ export default function StyleExtractorPage() {
                                         [ SET_AS_ACTIVE_SYSTEM ]
                                     </Button>
                                     <p className="text-center text-green-700 text-xs mt-2">
-                                        // This will apply the style to all new prompts generated in this session
+                                        {"//"} This will apply the style to all new prompts generated in this session
                                     </p>
                                 </div>
                             </div>

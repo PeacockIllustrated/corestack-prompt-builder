@@ -113,7 +113,7 @@ export const DesignSystemBuilder: React.FC<DesignSystemBuilderProps> = ({
         }
     };
 
-    const updateField = (key: keyof DesignSystem, val: any) => {
+    const updateField = (key: keyof DesignSystem, val: string | boolean) => {
         onChange({ ...value, [key]: val });
     };
 

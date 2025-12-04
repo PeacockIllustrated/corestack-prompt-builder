@@ -26,10 +26,6 @@ export default function LearningPage() {
     const supabase = createClient();
     const router = useRouter();
 
-    useEffect(() => {
-        fetchTopics();
-    }, []);
-
     const fetchTopics = async () => {
         const { data, error } = await supabase
             .from("learning_topics")
@@ -43,6 +39,11 @@ export default function LearningPage() {
         }
         setLoading(false);
     };
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        fetchTopics();
+    }, []);
 
     const handleCreateTopic = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -143,10 +144,10 @@ export default function LearningPage() {
                                             <td className="px-4 py-3">
                                                 <span
                                                     className={`uppercase ${topic.priority === "high"
-                                                            ? "text-red-500"
-                                                            : topic.priority === "medium"
-                                                                ? "text-amber-500"
-                                                                : "text-green-700"
+                                                        ? "text-red-500"
+                                                        : topic.priority === "medium"
+                                                            ? "text-amber-500"
+                                                            : "text-green-700"
                                                         }`}
                                                 >
                                                     {topic.priority}

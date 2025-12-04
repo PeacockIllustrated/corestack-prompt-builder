@@ -144,7 +144,7 @@ export function StylePreview({ system, originalImage }: StylePreviewProps) {
 
 // --- Sub-component for individual component cards ---
 
-function ComponentCard({ name, system, detected }: { name: string, system: StyleSystem, detected?: any }) {
+function ComponentCard({ name, system, detected }: { name: string, system: StyleSystem, detected?: { description?: string } }) {
     const [generatedCode, setGeneratedCode] = useState<string | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
     const { colors, radius, spacingScale } = system;
@@ -264,7 +264,7 @@ function ComponentCard({ name, system, detected }: { name: string, system: Style
             <div className="p-3 bg-black/40 border-t border-green-900/30 text-[10px] text-green-600/70 font-mono">
                 {detected ? (
                     <div>
-                        <p className="mb-1 text-green-400">"{detected.description}"</p>
+                        <p className="mb-1 text-green-400">&quot;{detected.description}&quot;</p>
                     </div>
                 ) : (
                     <div className="flex justify-between items-center">
